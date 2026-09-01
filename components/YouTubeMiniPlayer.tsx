@@ -125,6 +125,17 @@ export default function YouTubeMiniPlayer({
               {/* Swallows pointer events while dragging so the iframe never steals them */}
               {dragging && <div className="absolute inset-0" />}
             </div>
+            {/* Some labels disable embedding for their official videos — the iframe
+                above shows "Video unavailable" for those. This link always works
+                as a fallback, opening the same video on youtube.com in a new tab. */}
+            <a
+              href={`https://www.youtube.com/watch?v=${videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-[11px] text-teal py-1.5 border-t border-black/5 dark:border-white/10"
+            >
+              Video not playing? Open on YouTube ↗
+            </a>
           </div>
         </div>
       )}

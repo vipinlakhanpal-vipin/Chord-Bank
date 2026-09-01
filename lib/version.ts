@@ -50,7 +50,17 @@
 //   1.6.0 — removed the mobile "Search" tab from the bottom nav (Home already has a
 //           search box at the top, so it was a duplicate); bottom nav is back to 6
 //           icons: Home, Aria, Updates, Favourites, Settings, Refresh.
-export const APP_VERSION = "1.6.0";
+//   1.7.0 — mobile readability pass: bigger title/singer/badge text and more card
+//           padding on phone screens (still 3 tiles per row, just easier to read),
+//           slightly tighter page/grid margins to make room for it; YouTube popup
+//           now has an "Open on YouTube" fallback link for videos whose owner has
+//           disabled in-app embedding (the popup would otherwise show blank).
+//   1.8.0 — version badge next to the logo is now always visible (desktop AND
+//           mobile) since you check it every time to confirm a deploy landed;
+//           no other layout changes — the desktop-tabs-on-mobile issue you saw
+//           is a stale-deploy symptom, not a code bug (see chat for the exact
+//           redeploy steps that clear it).
+export const APP_VERSION = "1.8.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

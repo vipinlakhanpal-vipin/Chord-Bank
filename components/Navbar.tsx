@@ -33,7 +33,7 @@ export default function Navbar() {
             </Link>
             <span
               title={`Version ${APP_VERSION}`}
-              className="hidden sm:inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50 shrink-0"
+              className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50 shrink-0"
             >
               {formatVersion(APP_VERSION)}
             </span>

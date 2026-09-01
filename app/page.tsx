@@ -7,7 +7,7 @@ import SongCard from "@/components/SongCard";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { GENRES, Genre } from "@/lib/types";
 
-const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2";
+const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5 sm:gap-2";
 const PAGE_SIZE = 24; // tune once the library is bigger than one screen
 
 export default function HomePage() {

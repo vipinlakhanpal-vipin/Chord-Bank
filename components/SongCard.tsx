@@ -18,26 +18,26 @@ export default function SongCard({ song }: { song: Song }) {
   return (
     <Link
       href={`/songs/${song.id}`}
-      className={`relative card border-t-[3px] ${accentFor(song.id)} p-1.5 flex flex-col gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
+      className={`relative card border-t-[3px] ${accentFor(song.id)} p-2 sm:p-1.5 flex flex-col gap-1 sm:gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
     >
       <span className="absolute top-1 right-1 bg-white/80 dark:bg-ink/70 rounded-full p-0.5 leading-none">
-        <HeartButton songId={song.id} size={11} />
+        <HeartButton songId={song.id} size={13} />
       </span>
-      <h3 className="font-semibold leading-tight text-[11.5px] line-clamp-2 pr-3">{song.title}</h3>
-      <p className="text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
+      <h3 className="font-semibold leading-snug text-[13px] sm:text-[11.5px] line-clamp-2 pr-4">{song.title}</h3>
+      <p className="text-[11px] sm:text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
       <div className="flex items-center justify-between mt-0.5 gap-1">
         {playableAsIs ? (
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">✓</span>
+          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">✓</span>
         ) : bestShift !== null ? (
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-saffron/10 text-saffron font-medium">
+          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-saffron/10 text-saffron font-medium">
             +{bestShift}
           </span>
         ) : (
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/40 dark:text-cream/40">
+          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/40 dark:text-cream/40">
             —
           </span>
         )}
-        <span className="text-[9px] text-ink/35 dark:text-cream/35">{song.year}</span>
+        <span className="text-[10px] sm:text-[9px] text-ink/35 dark:text-cream/35">{song.year}</span>
         {song.youtubeId && (
           <span className="ml-auto">
             <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} compact />

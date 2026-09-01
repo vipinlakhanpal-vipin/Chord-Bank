@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <ServiceWorkerRegister />
           <Navbar />
-          <main className="max-w-4xl mx-auto px-4 py-6 pb-24 sm:pb-6">{children}</main>
+          <main className="max-w-6xl mx-auto px-4 pt-24 pb-24 sm:pt-20 sm:pb-6">{children}</main>
           <BottomNav />
         </ThemeProvider>
       </body>

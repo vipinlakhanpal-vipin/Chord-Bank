@@ -4,12 +4,7 @@ import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import YouTubeMiniPlayer from "./YouTubeMiniPlayer";
 
 // Rotating accent palette so tiles read as colorful without any per-song config.
-const ACCENTS = [
-  "border-l-saffron",
-  "border-l-teal",
-  "border-l-magenta",
-  "border-l-indigo",
-];
+const ACCENTS = ["border-t-saffron", "border-t-teal", "border-t-magenta", "border-t-indigo"];
 
 function accentFor(id: string) {
   let hash = 0;
@@ -22,29 +17,28 @@ export default function SongCard({ song }: { song: Song }) {
   return (
     <Link
       href={`/songs/${song.id}`}
-      className={`card border-l-4 ${accentFor(song.id)} p-2.5 flex flex-col gap-0.5 hover:shadow-md transition-shadow text-sm`}
+      className={`card border-t-[3px] ${accentFor(song.id)} p-2 flex flex-col gap-0.5 hover:shadow-md transition-shadow text-sm min-w-0`}
     >
-      <div className="flex items-start justify-between gap-1">
-        <h3 className="font-semibold leading-snug line-clamp-2">{song.title}</h3>
-        <span className="text-[10px] text-ink/40 dark:text-cream/40 shrink-0">{song.year}</span>
-      </div>
-      <p className="text-[11px] text-ink/60 dark:text-cream/60 truncate">{song.singers.join(", ")}</p>
-
-      <div className="flex items-center justify-between mt-1">
+      <h3 className="font-semibold leading-snug text-[12.5px] line-clamp-2">{song.title}</h3>
+      <p className="text-[10px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
+      <div className="flex items-center justify-between mt-1 gap-1">
         {playableAsIs ? (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">
-            Playable
-          </span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">✓</span>
         ) : bestShift !== null ? (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-saffron/10 text-saffron font-medium">
-            Shift {bestShift}
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-saffron/10 text-saffron font-medium">
+            +{bestShift}
           </span>
         ) : (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/40 dark:text-cream/40">
-            Other chords
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/40 dark:text-cream/40">
+            —
           </span>
         )}
-        {song.youtubeId && <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} />}
+        <span className="text-[9px] text-ink/35 dark:text-cream/35">{song.year}</span>
+        {song.youtubeId && (
+          <span className="ml-auto">
+            <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} compact />
+          </span>
+        )}
       </div>
     </Link>
   );

@@ -15,7 +15,18 @@
 //           delivered for review, current logo unchanged pending your pick.
 //   1.2.1 — applied Logo Option B (pick-in-a-vault, teal-to-indigo) as the app's logo
 //           and app icon everywhere; theme color updated to match.
-export const APP_VERSION = "1.2.1";
+//   1.3.0 — fixed desktop mouse-wheel scroll (overscroll-behavior-y was set to "none",
+//           a known cause of dead-feeling wheel scroll in some browsers; changed to
+//           "contain"); YouTube popup is now draggable anywhere on screen; chord charts
+//           show real song structure (Intro/Verse/Chorus/Bridge/Outro section labels)
+//           instead of blank-line spacing; replaced the single "group by singer"
+//           checkbox with real filters (Year, Singer, Genre) plus a By Singer/All Songs
+//           pill toggle; song tiles are smaller and denser (2 to 8 per row depending on
+//           screen width); added Prev/Next pagination for the All Songs view; Nunito
+//           font applied app-wide; navbar switched from sticky to truly fixed so it
+//           never scrolls away; nav tabs are now true pills — only the active tab gets
+//           the filled pill, inactive tabs are plain text.
+export const APP_VERSION = "1.3.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

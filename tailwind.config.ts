@@ -17,7 +17,8 @@ const config: Config = {
         ink: "#1F2430",
       },
       fontFamily: {
-        display: ["ui-rounded", "system-ui", "sans-serif"],
+        sans: ["Nunito", "system-ui", "sans-serif"],
+        display: ["Nunito", "system-ui", "sans-serif"],
       },
     },
   },

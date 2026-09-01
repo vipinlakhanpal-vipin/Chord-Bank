@@ -5,6 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { SONGS } from "@/data/songs";
 import SongCard from "@/components/SongCard";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
+import { GENRES, Genre } from "@/lib/types";
+
+const GRID = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2";
+const PAGE_SIZE = 24; // tune once the library is bigger than one screen
 
 export default function HomePage() {
   return (
@@ -19,13 +23,27 @@ function HomePageInner() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [onlyPlayable, setOnlyPlayable] = useState(false);
-  const [groupBySinger, setGroupBySinger] = useState(true);
+  const [viewMode, setViewMode] = useState<"bySinger" | "all">("bySinger");
+  const [year, setYear] = useState<string>("all");
+  const [singer, setSinger] = useState<string>("all");
+  const [genre, setGenre] = useState<Genre | "all">("all");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (searchParams.get("focus") === "search") {
       searchInputRef.current?.focus();
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, onlyPlayable, year, singer, genre, viewMode]);
+
+  const years = useMemo(() => Array.from(new Set(SONGS.map((s) => s.year))).sort((a, b) => b - a), []);
+  const singers = useMemo(
+    () => Array.from(new Set(SONGS.flatMap((s) => s.singers))).sort((a, b) => a.localeCompare(b)),
+    []
+  );
 
   const filtered = useMemo(() => {
     return SONGS.filter((s) => {
@@ -34,13 +52,16 @@ function HomePageInner() {
         s.singers.some((si) => si.toLowerCase().includes(query.toLowerCase())) ||
         (s.movie ?? "").toLowerCase().includes(query.toLowerCase());
       if (!matchesQuery) return false;
+      if (year !== "all" && s.year !== Number(year)) return false;
+      if (singer !== "all" && !s.singers.includes(singer)) return false;
+      if (genre !== "all" && !s.genres.includes(genre)) return false;
       if (onlyPlayable) {
         const { playableAsIs, bestShift } = matchScore(extractChordsFromChart(s.chart));
         return playableAsIs || bestShift !== null;
       }
       return true;
     });
-  }, [query, onlyPlayable]);
+  }, [query, onlyPlayable, year, singer, genre]);
 
   const bySinger = useMemo(() => {
     const map = new Map<string, typeof SONGS>();
@@ -52,8 +73,13 @@ function HomePageInner() {
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [filtered]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pagedFlat = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const activeFilterCount = [year !== "all", singer !== "all", genre !== "all", onlyPlayable].filter(Boolean).length;
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="card p-4">
         <h1 className="text-xl font-display font-bold mb-1">
           Welcome to <span className="text-magenta dark:text-saffron">Chord Bank</span>
@@ -63,7 +89,8 @@ function HomePageInner() {
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      {/* Search + view toggle */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <input
           ref={searchInputRef}
           value={query}
@@ -71,22 +98,67 @@ function HomePageInner() {
           placeholder="Search by song, singer, or movie..."
           className="flex-1 rounded-xl px-4 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
         />
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={onlyPlayable} onChange={(e) => setOnlyPlayable(e.target.checked)} />
-          Only show songs I can play
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={groupBySinger} onChange={(e) => setGroupBySinger(e.target.checked)} />
-          Group by singer
-        </label>
+        <div className="inline-flex p-1 rounded-full bg-black/5 dark:bg-white/10 self-start">
+          <button
+            onClick={() => setViewMode("bySinger")}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
+              viewMode === "bySinger" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            }`}
+          >
+            By Singer
+          </button>
+          <button
+            onClick={() => setViewMode("all")}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
+              viewMode === "all" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            }`}
+          >
+            All Songs
+          </button>
+        </div>
       </div>
 
-      {groupBySinger ? (
-        <div className="flex flex-col gap-8">
-          {bySinger.map(([singer, songs]) => (
-            <div key={singer}>
-              <h2 className="font-semibold text-lg mb-3 text-teal">{singer}</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <FilterSelect label="Year" value={year} onChange={setYear} options={years.map((y) => [String(y), String(y)])} />
+        <FilterSelect label="Singer" value={singer} onChange={setSinger} options={singers.map((s) => [s, s])} />
+        <FilterSelect
+          label="Genre"
+          value={genre}
+          onChange={(v) => setGenre(v as Genre | "all")}
+          options={GENRES.map((g) => [g, g])}
+        />
+        <button
+          onClick={() => setOnlyPlayable((v) => !v)}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+            onlyPlayable
+              ? "bg-teal text-white border-teal"
+              : "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60"
+          }`}
+        >
+          Only playable
+        </button>
+        {activeFilterCount > 0 && (
+          <button
+            onClick={() => {
+              setYear("all");
+              setSinger("all");
+              setGenre("all");
+              setOnlyPlayable(false);
+            }}
+            className="text-xs text-ink/40 dark:text-cream/40 underline"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      {viewMode === "bySinger" ? (
+        <div className="flex flex-col gap-7">
+          {bySinger.map(([singerName, songs]) => (
+            <div key={singerName}>
+              <h2 className="font-semibold text-base mb-2.5 text-teal">{singerName}</h2>
+              <div className={GRID}>
                 {songs.map((s) => (
                   <SongCard key={s.id} song={s} />
                 ))}
@@ -98,12 +170,69 @@ function HomePageInner() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {filtered.map((s) => (
-            <SongCard key={s.id} song={s} />
-          ))}
-        </div>
+        <>
+          <div className={GRID}>
+            {pagedFlat.map((s) => (
+              <SongCard key={s.id} song={s} />
+            ))}
+          </div>
+          {filtered.length === 0 && (
+            <p className="text-sm text-ink/50 dark:text-cream/50">No songs match yet — add more via Repositories.</p>
+          )}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15 disabled:opacity-30"
+              >
+                Prev
+              </button>
+              <span className="text-xs text-ink/50 dark:text-cream/50">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15 disabled:opacity-30"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: [string, string][];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`text-xs font-semibold pl-3 pr-2 py-1.5 rounded-full border cursor-pointer ${
+        value === "all"
+          ? "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60 bg-transparent"
+          : "border-teal bg-teal/10 text-teal"
+      }`}
+    >
+      <option value="all">{label}: All</option>
+      {options.map(([val, lbl]) => (
+        <option key={val} value={val}>
+          {lbl}
+        </option>
+      ))}
+    </select>
   );
 }

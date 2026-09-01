@@ -21,8 +21,8 @@ export default function Navbar() {
   const { available: updatePending, acknowledge } = useUpdateAvailable();
 
   return (
-    <nav className="sticky top-0 z-10 backdrop-blur bg-cream/80 dark:bg-ink/80 border-b border-black/5 dark:border-white/10">
-      <div className="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
+    <nav className="fixed top-0 inset-x-0 z-20 backdrop-blur bg-cream/90 dark:bg-ink/90 border-b border-black/5 dark:border-white/10">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex flex-col leading-tight">
           <span className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export default function Navbar() {
             aria-label="Home"
             title="Home"
             className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center ${
-              pathname === "/" ? "bg-teal/10 text-teal" : "text-ink/60 dark:text-cream/60 hover:bg-black/5 dark:hover:bg-white/10"
+              pathname === "/" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
             }`}
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -73,10 +73,10 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`text-sm px-2 py-1 rounded-lg ${
+              className={`text-sm px-3 py-1.5 rounded-full transition-colors ${
                 pathname === l.href
-                  ? "bg-teal/10 text-teal font-semibold"
-                  : "text-ink/70 dark:text-cream/70 hover:text-ink dark:hover:text-cream"
+                  ? "bg-teal text-white font-semibold"
+                  : "text-ink/70 dark:text-cream/70"
               }`}
             >
               {l.label}

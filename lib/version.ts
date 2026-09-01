@@ -40,7 +40,17 @@
 //           versioning convention going forward: every shipped update bumps the
 //           displayed number by one whole step (v1.3 -> v1.4 -> v1.5...), no more
 //           hidden decimal patch versions.
-export const APP_VERSION = "1.4.0";
+//   1.5.0 — first daily song batch: 10 new songs added (Ek Ladki Ko Dekha Toh Aisa
+//           Laga, Chura Liya Hai Tumne, Yeh Jo Mohabbat Hai, Papa Kehte Hain, Ae Mere
+//           Humsafar, Kabhi Kabhie Mere Dil Mein, Tere Bina Zindagi Se, Pal Pal Dil Ke
+//           Paas, Zindagi Pyar Ka Geet Hai, Tum Aa Gaye Ho), each with real chorus +
+//           verse structure, chords, and a verified YouTube link. Tagged
+//           "best-effort" since lyrics are recalled rather than sourced from an
+//           official lyric sheet — flag any line that's off and it'll be corrected.
+//   1.6.0 — removed the mobile "Search" tab from the bottom nav (Home already has a
+//           search box at the top, so it was a duplicate); bottom nav is back to 6
+//           icons: Home, Aria, Updates, Favourites, Settings, Refresh.
+export const APP_VERSION = "1.6.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

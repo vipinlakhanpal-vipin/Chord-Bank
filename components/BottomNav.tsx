@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import AriaChat from "./AriaChat";
 import UpdatesButton from "./UpdatesButton";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
   const { available: updatePending, acknowledge } = useUpdateAvailable();
 
   const isActive = (href: string) => pathname === href;
@@ -18,18 +17,10 @@ export default function BottomNav() {
       className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-7 items-end px-0.5 pt-1.5 pb-1.5">
+      <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
         <NavItem href="/" label="Home" active={isActive("/")}>
           <HomeIcon />
         </NavItem>
-
-        <button
-          onClick={() => router.push("/?focus=search")}
-          className="flex flex-col items-center gap-1 py-1 text-ink/50 dark:text-cream/50"
-        >
-          <SearchIcon />
-          <span className="text-[9px]">Search</span>
-        </button>
 
         <div className="flex flex-col items-center gap-1 py-1">
           <AriaChat />
@@ -112,15 +103,6 @@ function HomeIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" strokeLinecap="round" />
     </svg>
   );
 }

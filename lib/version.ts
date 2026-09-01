@@ -26,7 +26,14 @@
 //           font applied app-wide; navbar switched from sticky to truly fixed so it
 //           never scrolls away; nav tabs are now true pills — only the active tab gets
 //           the filled pill, inactive tabs are plain text.
-export const APP_VERSION = "1.3.0";
+//   1.3.1 — fixed mobile navbar overlap (desktop tabs were never hidden on small
+//           screens — now only logo+theme toggle show there, everything else lives in
+//           the bottom nav); grid pushed denser (3 to 10 tiles per row); redesigned
+//           filter dropdowns with a custom chevron instead of default OS select chrome;
+//           Aria icon replaced with a fixed AI-spark glyph plus one small dot genuinely
+//           orbiting it (smaller, less raised, purple); Updates icon changed from a book
+//           to a bell.
+export const APP_VERSION = "1.3.1";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

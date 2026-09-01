@@ -31,9 +31,9 @@ export default function BottomNav() {
           <span className="text-[10px]">Search</span>
         </button>
 
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-1 py-1">
           <AriaChat />
-          <span className="text-[10px] mt-1 text-indigo font-medium">Aria</span>
+          <span className="text-[10px]" style={{ color: "#7C3AED" }}>Aria</span>
         </div>
 
         <UpdatesButton showLabel />

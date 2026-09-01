@@ -17,11 +17,11 @@ export default function SongCard({ song }: { song: Song }) {
   return (
     <Link
       href={`/songs/${song.id}`}
-      className={`card border-t-[3px] ${accentFor(song.id)} p-2 flex flex-col gap-0.5 hover:shadow-md transition-shadow text-sm min-w-0`}
+      className={`card border-t-[3px] ${accentFor(song.id)} p-1.5 flex flex-col gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
     >
-      <h3 className="font-semibold leading-snug text-[12.5px] line-clamp-2">{song.title}</h3>
-      <p className="text-[10px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
-      <div className="flex items-center justify-between mt-1 gap-1">
+      <h3 className="font-semibold leading-tight text-[11.5px] line-clamp-2">{song.title}</h3>
+      <p className="text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
+      <div className="flex items-center justify-between mt-0.5 gap-1">
         {playableAsIs ? (
           <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">✓</span>
         ) : bestShift !== null ? (

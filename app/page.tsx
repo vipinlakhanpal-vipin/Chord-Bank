@@ -7,7 +7,7 @@ import SongCard from "@/components/SongCard";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { GENRES, Genre } from "@/lib/types";
 
-const GRID = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2";
+const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2";
 const PAGE_SIZE = 24; // tune once the library is bigger than one screen
 
 export default function HomePage() {
@@ -218,21 +218,36 @@ function FilterSelect({
   options: [string, string][];
 }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={`text-xs font-semibold pl-3 pr-2 py-1.5 rounded-full border cursor-pointer ${
-        value === "all"
-          ? "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60 bg-transparent"
-          : "border-teal bg-teal/10 text-teal"
-      }`}
-    >
-      <option value="all">{label}: All</option>
-      {options.map(([val, lbl]) => (
-        <option key={val} value={val}>
-          {lbl}
-        </option>
-      ))}
-    </select>
+    <div className="relative inline-flex">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full border cursor-pointer outline-none ${
+          value === "all"
+            ? "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60 bg-white dark:bg-white/5"
+            : "border-teal bg-teal text-white"
+        }`}
+      >
+        <option value="all">{label}: All</option>
+        {options.map(([val, lbl]) => (
+          <option key={val} value={val} className="text-ink dark:text-ink">
+            {lbl}
+          </option>
+        ))}
+      </select>
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 ${
+          value === "all" ? "text-ink/40 dark:text-cream/40" : "text-white"
+        }`}
+      >
+        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
   );
 }

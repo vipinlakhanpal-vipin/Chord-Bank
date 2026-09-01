@@ -32,9 +32,9 @@ export default function AriaChat() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Open Aria chat"
-        className="relative w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-indigo to-magenta shadow-lg shadow-indigo/30 -mt-6 border-4 border-cream dark:border-ink"
+        className="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg -mt-2 border-[3px] border-cream dark:border-ink"
+        style={{ background: "linear-gradient(155deg, #A78BFA, #6D28D9)" }}
       >
-        <span className="absolute inset-0 rounded-full border-2 border-indigo/40 animate-[spin_3s_linear_infinite]" />
         <AriaBotIcon />
       </button>
 
@@ -45,10 +45,13 @@ export default function AriaChat() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 px-4 py-3 border-b border-black/5 dark:border-white/10">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo to-magenta flex items-center justify-center">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: "linear-gradient(155deg, #A78BFA, #6D28D9)" }}
+              >
                 <AriaBotIcon small />
               </div>
-              <p className="font-semibold text-indigo dark:text-magenta">Aria</p>
+              <p className="font-semibold" style={{ color: "#7C3AED" }}>Aria</p>
               <button
                 onClick={() => setOpen(false)}
                 className="ml-auto w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 text-xs"
@@ -89,19 +92,22 @@ export default function AriaChat() {
   );
 }
 
+// A fixed AI "spark" glyph (the shape used across AI-assistant products) with
+// one small satellite dot that genuinely orbits it — a circular-motion cue
+// that reads as "an agent is here" rather than a spinning pinwheel.
 function AriaBotIcon({ small = false }: { small?: boolean }) {
-  const s = small ? 16 : 22;
+  const s = small ? 18 : 24;
   return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" className="animate-[spin_6s_linear_infinite]">
-      <circle cx="12" cy="12" r="3.2" fill="white" />
-      <circle cx="12" cy="3.2" r="1.6" fill="white" />
-      <circle cx="12" cy="20.8" r="1.6" fill="white" />
-      <circle cx="3.2" cy="12" r="1.6" fill="white" />
-      <circle cx="20.8" cy="12" r="1.6" fill="white" />
-      <circle cx="6" cy="6" r="1.3" fill="white" fillOpacity="0.7" />
-      <circle cx="18" cy="18" r="1.3" fill="white" fillOpacity="0.7" />
-      <circle cx="18" cy="6" r="1.3" fill="white" fillOpacity="0.7" />
-      <circle cx="6" cy="18" r="1.3" fill="white" fillOpacity="0.7" />
-    </svg>
+    <span className="relative inline-block" style={{ width: s, height: s }}>
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="white">
+        <path d="M12 2.5c.4 3.4 1.1 5.7 2.3 6.9 1.2 1.2 3.5 1.9 6.9 2.3-3.4.4-5.7 1.1-6.9 2.3-1.2 1.2-1.9 3.5-2.3 6.9-.4-3.4-1.1-5.7-2.3-6.9-1.2-1.2-3.5-1.9-6.9-2.3 3.4-.4 5.7-1.1 6.9-2.3 1.2-1.2 1.9-3.5 2.3-6.9Z" />
+      </svg>
+      <span className="absolute inset-0 animate-[spin_2.4s_linear_infinite]">
+        <span
+          className="absolute rounded-full bg-white"
+          style={{ width: s * 0.16, height: s * 0.16, top: -1, left: "50%", transform: "translateX(-50%)" }}
+        />
+      </span>
+    </span>
   );
 }

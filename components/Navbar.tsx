@@ -23,17 +23,17 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 inset-x-0 z-20 backdrop-blur bg-cream/90 dark:bg-ink/90 border-b border-black/5 dark:border-white/10">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-        <div className="flex flex-col leading-tight">
-          <span className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo size={30} />
-              <span className="font-display font-extrabold text-lg text-magenta dark:text-saffron">
+        <div className="flex flex-col leading-tight min-w-0">
+          <span className="flex items-center gap-2 min-w-0">
+            <Link href="/" className="flex items-center gap-2 min-w-0">
+              <Logo size={28} />
+              <span className="font-display font-extrabold text-base sm:text-lg text-magenta dark:text-saffron truncate">
                 Chord Bank
               </span>
             </Link>
             <span
               title={`Version ${APP_VERSION}`}
-              className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50"
+              className="hidden sm:inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50 shrink-0"
             >
               {formatVersion(APP_VERSION)}
             </span>
@@ -44,23 +44,25 @@ export default function Navbar() {
               }}
               aria-label="Refresh app"
               title={updatePending ? "New version available — click to refresh" : "Refresh"}
-              className="relative w-6 h-6 rounded-full flex items-center justify-center text-ink/40 dark:text-cream/40 hover:text-teal hover:bg-teal/10"
+              className="hidden sm:flex relative w-6 h-6 rounded-full items-center justify-center text-ink/40 dark:text-cream/40 hover:text-teal hover:bg-teal/10 shrink-0"
             >
               <RefreshIcon size={13} />
               {updatePending && (
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-cream dark:border-ink" />
               )}
             </button>
-            <UpdatesButton size={15} />
+            <span className="hidden sm:inline-flex shrink-0">
+              <UpdatesButton size={15} />
+            </span>
           </span>
-          <span className="text-[10px] pl-9 text-black/20 dark:text-white/20">Created by Vipin</span>
+          <span className="hidden sm:block text-[10px] pl-9 text-black/20 dark:text-white/20">Created by Vipin</span>
         </div>
-        <div className="flex items-center gap-1 sm:gap-4">
+        <div className="hidden sm:flex items-center gap-1 sm:gap-4 shrink-0">
           <Link
             href="/"
             aria-label="Home"
             title="Home"
-            className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center ${
+            className={`flex w-8 h-8 rounded-full items-center justify-center ${
               pathname === "/" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
             }`}
           >
@@ -73,7 +75,7 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`text-sm px-3 py-1.5 rounded-full transition-colors ${
+              className={`text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
                 pathname === l.href
                   ? "bg-teal text-white font-semibold"
                   : "text-ink/70 dark:text-cream/70"
@@ -85,11 +87,18 @@ export default function Navbar() {
           <button
             onClick={toggle}
             aria-label="Toggle theme"
-            className="ml-2 w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/10"
+            className="ml-2 w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/10 shrink-0"
           >
             {theme === "light" ? "🌙" : "☀️"}
           </button>
         </div>
+        <button
+          onClick={toggle}
+          aria-label="Toggle theme"
+          className="sm:hidden w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/10 shrink-0"
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
       </div>
     </nav>
   );

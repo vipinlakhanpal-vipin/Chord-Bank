@@ -9,9 +9,9 @@ import { APP_VERSION, formatVersion } from "@/lib/version";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
 
 const LINKS = [
-  { href: "/", label: "Songs" },
   { href: "/record", label: "Record" },
   { href: "/repositories", label: "Repositories" },
+  { href: "/favourites", label: "Favourite" },
   { href: "/settings", label: "Settings" },
 ];
 

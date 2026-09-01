@@ -5,6 +5,7 @@ import { notFound, useParams } from "next/navigation";
 import { SONGS } from "@/data/songs";
 import ChordLine from "@/components/ChordLine";
 import YouTubeMiniPlayer from "@/components/YouTubeMiniPlayer";
+import HeartButton from "@/components/HeartButton";
 import {
   extractChordsFromChart,
   findPlayableTranspositions,
@@ -29,7 +30,10 @@ export default function SongPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold">{song.title}</h1>
+          <h1 className="text-2xl font-display font-bold flex items-center gap-2">
+            {song.title}
+            <HeartButton songId={song.id} size={19} />
+          </h1>
           <p className="text-ink/60 dark:text-cream/60">
             {song.singers.join(", ")} {song.movie && `· ${song.movie}`} · {song.year}
           </p>

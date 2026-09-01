@@ -18,7 +18,7 @@ export default function BottomNav() {
       className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-6 items-end px-1 pt-1.5 pb-1.5">
+      <div className="grid grid-cols-7 items-end px-0.5 pt-1.5 pb-1.5">
         <NavItem href="/" label="Home" active={isActive("/")}>
           <HomeIcon />
         </NavItem>
@@ -28,15 +28,19 @@ export default function BottomNav() {
           className="flex flex-col items-center gap-1 py-1 text-ink/50 dark:text-cream/50"
         >
           <SearchIcon />
-          <span className="text-[10px]">Search</span>
+          <span className="text-[9px]">Search</span>
         </button>
 
         <div className="flex flex-col items-center gap-1 py-1">
           <AriaChat />
-          <span className="text-[10px]" style={{ color: "#7C3AED" }}>Aria</span>
+          <span className="text-[9px]" style={{ color: "#7C3AED" }}>Aria</span>
         </div>
 
         <UpdatesButton showLabel />
+
+        <NavItem href="/favourites" label="Favourites" active={isActive("/favourites")}>
+          <FavHeartIcon active={isActive("/favourites")} />
+        </NavItem>
 
         <NavItem href="/settings" label="Settings" active={isActive("/settings")}>
           <SettingsIcon />
@@ -79,8 +83,27 @@ function NavItem({
       className={`flex flex-col items-center gap-1 py-1 ${active ? "text-teal" : "text-ink/50 dark:text-cream/50"}`}
     >
       {children}
-      <span className="text-[10px]">{label}</span>
+      <span className="text-[9px]">{label}</span>
     </Link>
+  );
+}
+
+function FavHeartIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill={active ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path
+        d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.6 6.6 4.6 5.1 7 3.9 9.6 4.7 12 7.3c2.4-2.6 5-3.4 7.4-2.2 3 1.5 3.6 5.1 1.9 7.8C18.7 16.65 12 21 12 21Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

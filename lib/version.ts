@@ -33,7 +33,14 @@
 //           Aria icon replaced with a fixed AI-spark glyph plus one small dot genuinely
 //           orbiting it (smaller, less raised, purple); Updates icon changed from a book
 //           to a bell.
-export const APP_VERSION = "1.3.1";
+//   1.4.0 — Favourites: heart icon on every song tile and on the song detail page,
+//           turns green when tapped; "Favourite" tab on desktop, "Favourites" tab on
+//           the mobile bottom nav, both listing your hearted songs; removed the
+//           duplicate "Songs" tab (Home already goes there) to reduce clutter;
+//           versioning convention going forward: every shipped update bumps the
+//           displayed number by one whole step (v1.3 -> v1.4 -> v1.5...), no more
+//           hidden decimal patch versions.
+export const APP_VERSION = "1.4.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

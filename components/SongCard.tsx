@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import YouTubeMiniPlayer from "./YouTubeMiniPlayer";
+import HeartButton from "./HeartButton";
 
 // Rotating accent palette so tiles read as colorful without any per-song config.
 const ACCENTS = ["border-t-saffron", "border-t-teal", "border-t-magenta", "border-t-indigo"];
@@ -17,9 +18,12 @@ export default function SongCard({ song }: { song: Song }) {
   return (
     <Link
       href={`/songs/${song.id}`}
-      className={`card border-t-[3px] ${accentFor(song.id)} p-1.5 flex flex-col gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
+      className={`relative card border-t-[3px] ${accentFor(song.id)} p-1.5 flex flex-col gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
     >
-      <h3 className="font-semibold leading-tight text-[11.5px] line-clamp-2">{song.title}</h3>
+      <span className="absolute top-1 right-1 bg-white/80 dark:bg-ink/70 rounded-full p-0.5 leading-none">
+        <HeartButton songId={song.id} size={11} />
+      </span>
+      <h3 className="font-semibold leading-tight text-[11.5px] line-clamp-2 pr-3">{song.title}</h3>
       <p className="text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
       <div className="flex items-center justify-between mt-0.5 gap-1">
         {playableAsIs ? (

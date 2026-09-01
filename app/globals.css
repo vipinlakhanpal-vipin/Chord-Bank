@@ -10,8 +10,26 @@ html.dark {
   color-scheme: dark;
 }
 
+/* Prevents the mobile "jump" — no accidental horizontal scroll from an
+   element popping wider than the viewport, no elastic bounce past the top
+   edge shifting the sticky navbar, and a stable base size instead of the
+   browser auto-zooming form inputs (which forces a jarring re-layout). */
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   @apply bg-cream text-ink dark:bg-ink dark:text-cream transition-colors duration-200;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  min-height: 100dvh;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px; /* iOS Safari zooms the page on focus if inputs are smaller than this */
 }
 
 .chord-token {

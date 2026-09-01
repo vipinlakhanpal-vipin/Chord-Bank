@@ -1,0 +1,14 @@
+{
+  "name": "Chord Bank",
+  "short_name": "Chord Bank",
+  "description": "Bollywood chord library and practice recorder built around A, E, Em, G, C, D.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8EE",
+  "theme_color": "#0EA5A0",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

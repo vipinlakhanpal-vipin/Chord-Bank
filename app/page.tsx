@@ -1,14 +1,31 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SONGS } from "@/data/songs";
 import SongCard from "@/components/SongCard";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 
 export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageInner />
+    </Suspense>
+  );
+}
+
+function HomePageInner() {
+  const searchParams = useSearchParams();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [onlyPlayable, setOnlyPlayable] = useState(false);
   const [groupBySinger, setGroupBySinger] = useState(true);
+
+  useEffect(() => {
+    if (searchParams.get("focus") === "search") {
+      searchInputRef.current?.focus();
+    }
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     return SONGS.filter((s) => {
@@ -38,14 +55,17 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="card p-4">
-        <h1 className="text-xl font-display font-bold mb-1">Bollywood Chords, Your 6 Chords Only</h1>
+        <h1 className="text-xl font-display font-bold mb-1">
+          Welcome to <span className="text-magenta dark:text-saffron">Chord Bank</span>
+        </h1>
         <p className="text-sm text-ink/60 dark:text-cream/60">
-          Every song here is filtered and transposed against A, E, Em, G, C, D — the chords you actually play.
+          Your Bollywood chord library — every song filtered and transposed to fit the chords you play.
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <input
+          ref={searchInputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by song, singer, or movie..."
@@ -66,7 +86,7 @@ export default function HomePage() {
           {bySinger.map(([singer, songs]) => (
             <div key={singer}>
               <h2 className="font-semibold text-lg mb-3 text-teal">{singer}</h2>
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                 {songs.map((s) => (
                   <SongCard key={s.id} song={s} />
                 ))}
@@ -78,7 +98,7 @@ export default function HomePage() {
           )}
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
           {filtered.map((s) => (
             <SongCard key={s.id} song={s} />
           ))}

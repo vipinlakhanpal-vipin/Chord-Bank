@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { notFound, useParams } from "next/navigation";
 import { SONGS } from "@/data/songs";
 import ChordLine from "@/components/ChordLine";
-import YouTubeEmbed from "@/components/YouTubeEmbed";
+import YouTubeMiniPlayer from "@/components/YouTubeMiniPlayer";
 import {
   extractChordsFromChart,
   findPlayableTranspositions,
@@ -27,14 +27,19 @@ export default function SongPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-display font-bold">{song.title}</h1>
-        <p className="text-ink/60 dark:text-cream/60">
-          {song.singers.join(", ")} {song.movie && `· ${song.movie}`} · {song.year}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-display font-bold">{song.title}</h1>
+          <p className="text-ink/60 dark:text-cream/60">
+            {song.singers.join(", ")} {song.movie && `· ${song.movie}`} · {song.year}
+          </p>
+        </div>
+        {song.youtubeId && (
+          <div className="shrink-0 mt-1">
+            <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} />
+          </div>
+        )}
       </div>
-
-      {song.youtubeId && <YouTubeEmbed videoId={song.youtubeId} title={song.title} />}
 
       <div className="card p-4">
         <h2 className="font-semibold mb-2">Transpose within your chords</h2>

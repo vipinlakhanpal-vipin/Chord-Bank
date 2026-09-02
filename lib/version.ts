@@ -60,7 +60,12 @@
 //           no other layout changes — the desktop-tabs-on-mobile issue you saw
 //           is a stale-deploy symptom, not a code bug (see chat for the exact
 //           redeploy steps that clear it).
-export const APP_VERSION = "1.8.0";
+//   1.9.0 — real bug found and fixed: Record and Repositories had no way to be
+//           opened on mobile at all (the top tab row that held them is desktop-only,
+//           and the bottom nav never included them). Added small Record (mic) and
+//           Repositories (stack) icons next to the logo on mobile so both pages are
+//           reachable again.
+export const APP_VERSION = "1.9.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

@@ -110,7 +110,21 @@
 //           rollback — nothing from v2.06 was undone). From here it counts up
 //           normally — v1.27, v1.28, ... — through v1.99, then the change after
 //           that rolls to v2.0.
-export const APP_VERSION = "1.26.0";
+//   1.27 — Rec/Repo pill buttons (top-right, mobile) are now a touch bigger and
+//           always show their tinted background (teal/saffron) even when not
+//           the active page, instead of a bare outline that was easy to miss;
+//           By Singer/All Songs toggle now gets the same colored-pill treatment
+//           as the filter row (indigo/teal) instead of one plain grey option;
+//           fixed YouTube "Listen" popup videos getting stuck on an endless
+//           loading spinner for most songs — the popup was requesting
+//           autoplay, which Chrome silently blocks unless the play tap happens
+//           inside the YouTube frame itself, so it just hung with nothing
+//           visibly wrong; now loads the normal YouTube thumbnail + play
+//           button, one extra tap but it starts every time; added instant
+//           press feedback (a quick scale-down) to the mobile bottom nav
+//           buttons so switching tabs feels immediate even while the next
+//           page's content loads in.
+export const APP_VERSION = "1.27.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

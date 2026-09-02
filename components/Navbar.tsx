@@ -99,10 +99,10 @@ export default function Navbar() {
             href="/record"
             aria-label="Record"
             title="Record"
-            className={`flex items-center gap-0.5 px-1.5 py-1 rounded-full text-[10px] font-bold border ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
               pathname === "/record"
                 ? "bg-teal text-white border-teal"
-                : "border-black/10 dark:border-white/20 text-ink/70 dark:text-cream/70"
+                : "bg-teal/10 border-teal/30 text-teal"
             }`}
           >
             <MicIcon />
@@ -112,10 +112,10 @@ export default function Navbar() {
             href="/repositories"
             aria-label="Repositories"
             title="Repositories"
-            className={`flex items-center gap-0.5 px-1.5 py-1 rounded-full text-[10px] font-bold border ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
               pathname === "/repositories"
-                ? "bg-teal text-white border-teal"
-                : "border-black/10 dark:border-white/20 text-ink/70 dark:text-cream/70"
+                ? "bg-saffron text-white border-saffron"
+                : "bg-saffron/10 border-saffron/30 text-saffron"
             }`}
           >
             <StackIcon />
@@ -136,7 +136,7 @@ export default function Navbar() {
 
 function MicIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <rect x="9" y="2" width="6" height="12" rx="3" />
       <path d="M5 10a7 7 0 0 0 14 0" strokeLinecap="round" />
       <path d="M12 19v3" strokeLinecap="round" />
@@ -146,7 +146,7 @@ function MicIcon() {
 
 function StackIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="m12 3 9 5-9 5-9-5 9-5Z" strokeLinecap="round" strokeLinejoin="round" />
       <path d="m3 13 9 5 9-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>

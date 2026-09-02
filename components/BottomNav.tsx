@@ -42,7 +42,7 @@ export default function BottomNav() {
             acknowledge();
             window.location.reload();
           }}
-          className="relative flex flex-col items-center gap-1 py-1 text-ink/50 dark:text-cream/50"
+          className="relative flex flex-col items-center gap-1 py-1 text-ink/50 dark:text-cream/50 transition-transform duration-100 ease-out active:scale-90"
         >
           <span className="relative inline-flex">
             <RefreshIcon />
@@ -71,7 +71,10 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center gap-1 py-1 ${active ? "text-teal" : "text-ink/50 dark:text-cream/50"}`}
+      prefetch
+      className={`flex flex-col items-center gap-1 py-1 transition-transform duration-100 ease-out active:scale-90 ${
+        active ? "text-teal" : "text-ink/50 dark:text-cream/50"
+      }`}
     >
       {children}
       <span className="text-[9px]">{label}</span>

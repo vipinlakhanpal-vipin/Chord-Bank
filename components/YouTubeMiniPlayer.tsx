@@ -117,7 +117,13 @@ export default function YouTubeMiniPlayer({
             <div className="aspect-video w-full relative">
               <iframe
                 className="w-full h-full"
-                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                // No autoplay: Chrome's autoplay-with-sound policy silently blocks
+                // it on most opens (autoplay is a query param we set on the outer
+                // page, not a gesture made inside the YouTube frame itself), which
+                // just left the popup spinning forever with nothing visibly wrong.
+                // Loading with the normal YouTube thumbnail + play button means one
+                // extra tap, but it actually starts every time.
+                src={`https://www.youtube.com/embed/${videoId}`}
                 title={`${title} — YouTube`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

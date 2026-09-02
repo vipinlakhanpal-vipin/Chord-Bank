@@ -76,10 +76,50 @@
 //           Agar Tum Saath Ho, Raabta, Phir Le Aya Dil, Tera Ban Jaunga, Hasi, Tum Hi
 //           Aana, Bachna Ae Haseeno) — 25 songs in the library now. Same chorus+verse
 //           structure, chords, and a verified YouTube link per song as the first batch.
-export const APP_VERSION = "2.2.0";
+//   2.3.0 — third daily song batch: 10 more songs (Chingari Koi Bhadke, Rimjhim Gire
+//           Sawan, Tere Mere Beech Mein, Pehla Nasha, Kuch Kuch Hota Hai, Tujh Mein
+//           Rab Dikhta Hai, Ajab Si, Tera Hone Laga Hoon, Kabira, Khairiyat) — 35
+//           songs in the library now, spanning 1972-2019. Same chorus+verse structure,
+//           chords, and a verified YouTube link per song as the first two batches.
+//           Also fixed a real bug found while auditing the whole library against the
+//           transpose engine: 3 existing songs (Kal Ho Naa Ho, Chura Liya Hai Tumne,
+//           Raabta) used a second chord outside the 6-chord family (a stray Em
+//           alongside Am, or a full E alongside Am) that made them silently
+//           unplayable even with a shift — every song in the library now actually
+//           passes the app's own playability check, not just the new ones.
+//   2.04 — versioning convention changed again, this time for good: whole-number
+//           steps (v1.0 -> v2.3) were too coarse, so it's back to a decimal minor,
+//           but two digits instead of the original single digit — v2.04, v2.05,
+//           ... up to v2.99, then the next change rolls to v3.00. A tiny fix that
+//           doesn't deserve its own minor step bumps a third "patch" digit instead
+//           (shown only when non-zero, e.g. v2.04.1) and resets at the next minor
+//           bump. Everything before this line keeps its old whole-number label
+//           (v1.0 ... v2.3) — only new entries use the new format.
+//   2.05 — real bug fix: the "All Songs" grid paginated after just 24 tiles
+//           regardless of screen width, so on a wide desktop (10 columns) it cut
+//           to "Page 1 of 2" after only ~2.5 rows, leaving a lot of empty space
+//           below before you'd hit Prev/Next. Page size raised to 60 — the whole
+//           current library now fits on one page with no pagination controls at
+//           all, and it'll keep filling the screen properly as more songs are added.
+//   2.06 — Year/Singer/Genre/Only playable filter pills now each get their own
+//           tinted color (saffron/indigo/magenta/teal) instead of all sharing one
+//           plain grey-until-selected look, matching the colored badges already
+//           used on song tiles; added a "35 songs in the library" counter next
+//           to them so the total library size is visible without counting tiles.
+//   1.26 — version number deliberately restarted at v1.26 per request (not a
+//           rollback — nothing from v2.06 was undone). From here it counts up
+//           normally — v1.27, v1.28, ... — through v1.99, then the change after
+//           that rolls to v2.0.
+export const APP_VERSION = "1.26.0";
 
+// Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
+// third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.
+// Bump MINOR by 1 for a normal shipped change; roll MINOR 99 -> 00 and bump MAJOR
+// for the change after that; reserve PATCH for a fix too small to deserve its own
+// MINOR step.
 export function formatVersion(version: string): string {
-  const parts = version.split(".");
-  if (parts[2] === "0") return `v${parts[0]}.${parts[1]}`;
-  return `v${version}`;
+  const [major, minor, patch] = version.split(".");
+  const minorPadded = minor.padStart(2, "0");
+  if (!patch || patch === "0") return `v${major}.${minorPadded}`;
+  return `v${major}.${minorPadded}.${patch}`;
 }

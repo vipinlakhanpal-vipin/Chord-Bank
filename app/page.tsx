@@ -8,7 +8,13 @@ import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { GENRES, Genre } from "@/lib/types";
 
 const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5 sm:gap-2";
-const PAGE_SIZE = 24; // tune once the library is bigger than one screen
+// Sized to comfortably fill a wide desktop screen (up to 10 columns) before
+// paginating at all — with the old value of 24, a 10-column screen only filled
+// ~2.5 rows and then cut to "Page 1 of 2" with a lot of empty space still
+// visible below the tiles. 60 keeps everything on one page well past the
+// current library size and still reads as a reasonable "page" on narrow
+// (3-column) screens; revisit again once the library is a few hundred songs.
+const PAGE_SIZE = 60;
 
 export default function HomePage() {
   return (
@@ -118,12 +124,27 @@ function HomePageInner() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters — each gets its own tint so the row reads at a glance, matching
+          the colored badges already used on song tiles (bg-<color>/10, solid
+          <color> once a value is actually picked). */}
       <div className="flex flex-wrap items-center gap-2">
-        <FilterSelect label="Year" value={year} onChange={setYear} options={years.map((y) => [String(y), String(y)])} />
-        <FilterSelect label="Singer" value={singer} onChange={setSinger} options={singers.map((s) => [s, s])} />
+        <FilterSelect
+          label="Year"
+          color="saffron"
+          value={year}
+          onChange={setYear}
+          options={years.map((y) => [String(y), String(y)])}
+        />
+        <FilterSelect
+          label="Singer"
+          color="indigo"
+          value={singer}
+          onChange={setSinger}
+          options={singers.map((s) => [s, s])}
+        />
         <FilterSelect
           label="Genre"
+          color="magenta"
           value={genre}
           onChange={(v) => setGenre(v as Genre | "all")}
           options={GENRES.map((g) => [g, g])}
@@ -131,13 +152,14 @@ function HomePageInner() {
         <button
           onClick={() => setOnlyPlayable((v) => !v)}
           className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-            onlyPlayable
-              ? "bg-teal text-white border-teal"
-              : "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60"
+            onlyPlayable ? "bg-teal text-white border-teal" : "bg-teal/10 border-teal/30 text-teal"
           }`}
         >
           Only playable
         </button>
+        <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/5 dark:bg-white/10 text-ink/60 dark:text-cream/60">
+          <span className="text-teal dark:text-saffron font-bold">{SONGS.length}</span> songs in the library
+        </span>
         {activeFilterCount > 0 && (
           <button
             onClick={() => {
@@ -206,26 +228,49 @@ function HomePageInner() {
   );
 }
 
+// Full literal class strings per color (Tailwind's build-time scanner needs the
+// exact "bg-saffron/10" etc. token to appear somewhere in the source — building
+// these with string interpolation like `bg-${color}/10` would silently produce
+// no styles at all).
+const FILTER_TINTS = {
+  saffron: {
+    inactive: "border-saffron/30 bg-saffron/10 text-saffron",
+    active: "border-saffron bg-saffron text-white",
+    chevronInactive: "text-saffron/70",
+  },
+  indigo: {
+    inactive: "border-indigo/30 bg-indigo/10 text-indigo",
+    active: "border-indigo bg-indigo text-white",
+    chevronInactive: "text-indigo/70",
+  },
+  magenta: {
+    inactive: "border-magenta/30 bg-magenta/10 text-magenta",
+    active: "border-magenta bg-magenta text-white",
+    chevronInactive: "text-magenta/70",
+  },
+} as const;
+
 function FilterSelect({
   label,
   value,
   onChange,
   options,
+  color,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: [string, string][];
+  color: keyof typeof FILTER_TINTS;
 }) {
+  const tint = FILTER_TINTS[color];
   return (
     <div className="relative inline-flex">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full border cursor-pointer outline-none ${
-          value === "all"
-            ? "border-black/10 dark:border-white/15 text-ink/60 dark:text-cream/60 bg-white dark:bg-white/5"
-            : "border-teal bg-teal text-white"
+        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full border cursor-pointer outline-none transition-colors ${
+          value === "all" ? tint.inactive : tint.active
         }`}
       >
         <option value="all">{label}: All</option>
@@ -243,7 +288,7 @@ function FilterSelect({
         stroke="currentColor"
         strokeWidth="2.5"
         className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 ${
-          value === "all" ? "text-ink/40 dark:text-cream/40" : "text-white"
+          value === "all" ? tint.chevronInactive : "text-white"
         }`}
       >
         <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />

@@ -1,6 +1,6 @@
 # Chord Bank — Bollywood Chords for the 6 Chords You Know
 
-**Current version: v1.0** (see [Versioning](#versioning) below for how this number moves)
+**Current version: v2.04** (see [Versioning](#versioning) below for how this number moves)
 
 A practice app for Hindi/Bollywood songs (1970 onward), built entirely around six chords: **A, E, Em, G, C, D**.
 Every song is checked against that set; if it doesn't fit as-is, the app finds a capo/key-shift that makes it fit,
@@ -110,14 +110,18 @@ npm run dev
 
 ## Versioning
 
-The app displays its version next to the logo in the navbar (e.g. `v1.0`), read from `lib/version.ts`. This is a
-simple `major.minor.patch` string; the navbar shows it as `vMAJOR.MINOR` and rounds down to just those two numbers
-when patch is `0`.
+The app displays its version next to the logo in the navbar (e.g. `v2.04`), read from `lib/version.ts`. This is a
+`major.minor.patch` string; the navbar shows it as `vMAJOR.MINOR` with minor zero-padded to two digits, plus the
+patch digit appended only when it's non-zero (e.g. `v2.04.1`).
 
-- Bump **patch** (1.0.0 → 1.0.1) for small fixes with no visible feature change.
-- Bump **minor** (1.0.x → 1.1.0) for a new feature or visible change — this is the normal case, and what shows in
-  the navbar as `v1.1`, `v1.2`, etc.
-- Bump **major** (1.x → 2.0.0) only for a rethink of the app itself.
+- Bump **minor** by 1 (2.4.0 → 2.5.0, shown as `v2.04` → `v2.05`) for a normal shipped change — new feature, fix,
+  content batch, whatever. This is the normal case.
+- When minor rolls past 99, bump **major** and reset minor to 0 (2.99.0 → 3.0.0, shown as `v2.99` → `v3.00`).
+- Bump **patch** only for a fix too small to deserve its own minor step (e.g. `v2.04` → `v2.04.1`); it resets to 0
+  at the next minor bump.
+
+(Versions before this scheme — v1.0 through v2.3 — used an earlier whole-number-per-change convention and keep
+their old labels; only entries from v2.04 onward follow the rule above.)
 
 Tell me what changed and I'll update `APP_VERSION` in `lib/version.ts`, add a line to the History comment above it,
 and hand you the new build — you don't need to touch this yourself unless you want to.

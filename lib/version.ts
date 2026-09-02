@@ -70,7 +70,13 @@
 //           and Repositories are now labeled pill buttons ("Rec" / "Repo" with an
 //           icon) instead of unlabeled icons, so they read as tappable tabs, not
 //           decoration.
-export const APP_VERSION = "2.0.0";
+//   2.1.0 — "Created by Vipin" credit line brightened to a bold colored line
+//           (was near-invisible at 20% opacity grey).
+//   2.2.0 — second daily song batch: 10 more songs (Tum Se Hi, Iktara, Channa Mereya,
+//           Agar Tum Saath Ho, Raabta, Phir Le Aya Dil, Tera Ban Jaunga, Hasi, Tum Hi
+//           Aana, Bachna Ae Haseeno) — 25 songs in the library now. Same chorus+verse
+//           structure, chords, and a verified YouTube link per song as the first batch.
+export const APP_VERSION = "2.2.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

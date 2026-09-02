@@ -55,7 +55,9 @@ export default function Navbar() {
               <UpdatesButton size={15} />
             </span>
           </span>
-          <span className="hidden sm:block text-[10px] pl-9 text-black/20 dark:text-white/20">Created by Vipin</span>
+          <span className="hidden sm:block text-[11px] font-semibold pl-9 text-teal/70 dark:text-saffron/80">
+            Created by Vipin
+          </span>
         </div>
         <div className="hidden sm:flex items-center gap-1 sm:gap-4 shrink-0">
           <Link

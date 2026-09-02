@@ -33,7 +33,7 @@ export default function Navbar() {
             </Link>
             <span
               title={`Version ${APP_VERSION}`}
-              className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50 shrink-0"
+              className="inline-block text-[11px] font-extrabold px-1.5 py-0.5 rounded-full bg-teal/15 text-teal shrink-0"
             >
               {formatVersion(APP_VERSION)}
             </span>
@@ -97,26 +97,32 @@ export default function Navbar() {
             href="/record"
             aria-label="Record"
             title="Record"
-            className={`flex w-8 h-8 rounded-full items-center justify-center ${
-              pathname === "/record" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            className={`flex items-center gap-0.5 px-1.5 py-1 rounded-full text-[10px] font-bold border ${
+              pathname === "/record"
+                ? "bg-teal text-white border-teal"
+                : "border-black/10 dark:border-white/20 text-ink/70 dark:text-cream/70"
             }`}
           >
             <MicIcon />
+            Rec
           </Link>
           <Link
             href="/repositories"
             aria-label="Repositories"
             title="Repositories"
-            className={`flex w-8 h-8 rounded-full items-center justify-center ${
-              pathname === "/repositories" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            className={`flex items-center gap-0.5 px-1.5 py-1 rounded-full text-[10px] font-bold border ${
+              pathname === "/repositories"
+                ? "bg-teal text-white border-teal"
+                : "border-black/10 dark:border-white/20 text-ink/70 dark:text-cream/70"
             }`}
           >
             <StackIcon />
+            Repo
           </Link>
           <button
             onClick={toggle}
             aria-label="Toggle theme"
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/10 shrink-0"
+            className="w-7 h-7 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/10 shrink-0 text-xs"
           >
             {theme === "light" ? "🌙" : "☀️"}
           </button>
@@ -128,7 +134,7 @@ export default function Navbar() {
 
 function MicIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <rect x="9" y="2" width="6" height="12" rx="3" />
       <path d="M5 10a7 7 0 0 0 14 0" strokeLinecap="round" />
       <path d="M12 19v3" strokeLinecap="round" />
@@ -138,7 +144,7 @@ function MicIcon() {
 
 function StackIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="m12 3 9 5-9 5-9-5 9-5Z" strokeLinecap="round" strokeLinejoin="round" />
       <path d="m3 13 9 5 9-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>

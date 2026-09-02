@@ -65,7 +65,12 @@
 //           and the bottom nav never included them). Added small Record (mic) and
 //           Repositories (stack) icons next to the logo on mobile so both pages are
 //           reachable again.
-export const APP_VERSION = "1.9.0";
+//   2.0.0 — mobile header legibility pass: version badge is now bold teal (was
+//           faint grey, hard to read on dark mode) instead of blending in; Record
+//           and Repositories are now labeled pill buttons ("Rec" / "Repo" with an
+//           icon) instead of unlabeled icons, so they read as tappable tabs, not
+//           decoration.
+export const APP_VERSION = "2.0.0";
 
 export function formatVersion(version: string): string {
   const parts = version.split(".");

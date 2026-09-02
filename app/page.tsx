@@ -104,19 +104,19 @@ function HomePageInner() {
           placeholder="Search by song, singer, or movie..."
           className="flex-1 rounded-xl px-4 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
         />
-        <div className="inline-flex p-1 rounded-full bg-black/5 dark:bg-white/10 self-start">
+        <div className="inline-flex gap-1.5 self-start">
           <button
             onClick={() => setViewMode("bySinger")}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
-              viewMode === "bySinger" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+              viewMode === "bySinger" ? FILTER_TINTS.indigo.active : FILTER_TINTS.indigo.inactive
             }`}
           >
             By Singer
           </button>
           <button
             onClick={() => setViewMode("all")}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
-              viewMode === "all" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+              viewMode === "all" ? FILTER_TINTS.teal.active : FILTER_TINTS.teal.inactive
             }`}
           >
             All Songs
@@ -247,6 +247,11 @@ const FILTER_TINTS = {
     inactive: "border-magenta/30 bg-magenta/10 text-magenta",
     active: "border-magenta bg-magenta text-white",
     chevronInactive: "text-magenta/70",
+  },
+  teal: {
+    inactive: "border-teal/30 bg-teal/10 text-teal",
+    active: "border-teal bg-teal text-white",
+    chevronInactive: "text-teal/70",
   },
 } as const;
 

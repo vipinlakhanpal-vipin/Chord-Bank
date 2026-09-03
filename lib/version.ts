@@ -278,7 +278,11 @@
 //           other import path here, it never authors or reproduces lyrics
 //           on its own — it only reshapes chart text you've already
 //           sourced yourself, this time out of a Word or PDF file.
-export const APP_VERSION = "1.39.0";
+//   1.40 — Removed the "Add Song" button from the mobile bottom nav — it
+//           duplicated the "+ Add Song" button already on Home's top right,
+//           so the bottom nav is back to 6 icons: Home, Aria, Updates,
+//           Favourites, Settings, Refresh.
+export const APP_VERSION = "1.40.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

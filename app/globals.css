@@ -18,9 +18,14 @@ html.dark {
    NOTE: overscroll-behavior-y was previously set to "none" here to stop the
    iOS rubber-band bounce, but that value is known to make mouse-wheel
    scrolling feel dead/unresponsive in some desktop browsers — "contain"
-   still stops the bounce/scroll-chaining without breaking wheel scroll. */
+   still stops the bounce/scroll-chaining without breaking wheel scroll.
+   overflow-x is set ONLY on body, not html: setting it on both makes some
+   browsers treat <html> as its own scroll container instead of just letting
+   the viewport scroll normally, which is what was making the mouse wheel
+   feel dead/do nothing on desktop even though touch/trackpad drag scrolling
+   still worked. html is left at its default (visible) so the page always
+   scrolls the normal, native way. */
 html {
-  overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
 }
 

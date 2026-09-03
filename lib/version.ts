@@ -138,6 +138,12 @@
 //           a hardcoded file. Repositories page copy corrected to stop
 //           promising an AI ingestion pipeline that was never going to be
 //           buildable. Needs a one-line schema migration — see README.
+//           Also: the Chord chart box now auto-converts a paste straight
+//           from Ultimate Guitar (chords on their own line above the lyrics)
+//           into this app's inline [Chord]lyric format automatically — no
+//           manual reformatting needed before it's playable/transposable.
+//           Already-inline text pastes through unchanged, and you can still
+//           hand-move any [Chord] tag afterward if the placement is off.
 export const APP_VERSION = "1.28.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional

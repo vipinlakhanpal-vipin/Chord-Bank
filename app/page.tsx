@@ -293,14 +293,12 @@ function EmptyState({
 
 // Solid gradient fill + white text, same recipe as the Genre pills on Add Song
 // — like a contacts app's category chips, not a tinted outline. Every pill
-// stays a real, filled color at all times; selection is shown by dimming the
-// unselected ones rather than switching color families. Full literal class
-// strings — Tailwind's build-time scanner needs the exact "from-amber-500
-// to-orange-600" token to appear in source, so no string interpolation here.
-// Every end-stop stays at -600 (not -700/-800) and the dimmed state never
-// drops below ~65% opacity — a darker gradient faded much past that reads as
-// nearly invisible against this app's dark background (teal-to-cyan-700 at
-// 50% opacity was the culprit that made "Only playable" disappear).
+// is at FULL brightness ALL the time, selected or not — no opacity dimming —
+// and the currently-selected one just gets an extra white ring/shadow on top
+// of that same full color, so the row never looks washed out. Full literal
+// class strings — Tailwind's build-time scanner needs the exact
+// "from-amber-500 to-orange-600" token to appear in source, so no string
+// interpolation here.
 // IMPORTANT: never use "teal-NNN", "indigo-NNN", "saffron-NNN", "magenta-NNN"
 // or "turquoise-NNN" — tailwind.config.ts overrides those color *names* with
 // flat brand hexes, which wipes out Tailwind's own shade scale for them, so
@@ -316,8 +314,8 @@ const FILTER_TINTS = {
 } as const;
 
 function pillClass(gradient: string, active: boolean) {
-  return `text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${gradient} transition-all ${
-    active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-65 hover:opacity-90"
+  return `text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${gradient} shadow-sm transition-all ${
+    active ? "ring-2 ring-white/80 shadow-md" : ""
   }`;
 }
 
@@ -341,8 +339,8 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full cursor-pointer outline-none text-white bg-gradient-to-br ${gradient} transition-all ${
-          active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-65 hover:opacity-90"
+        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full cursor-pointer outline-none text-white bg-gradient-to-br ${gradient} shadow-sm transition-all ${
+          active ? "ring-2 ring-white/80 shadow-md" : ""
         }`}
       >
         <option value="all">{label}: All</option>

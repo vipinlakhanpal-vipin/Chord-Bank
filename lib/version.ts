@@ -264,7 +264,21 @@
 //           page, the pills now sit in a capped, scrollable box instead of
 //           just wrapping onto more and more lines — a couple of
 //           repositories is one short row, and 10-20+ scrolls in place.
-export const APP_VERSION = "1.38.0";
+//   1.39 — Word and PDF bulk import, completing the Excel/PDF/Word import
+//           set. The Import page now also accepts .docx and .pdf files: one
+//           "Label: value" line per field (Title, Singers, Movie, Year,
+//           Genres, YouTube, Repository, Chart), multiple songs separated
+//           by a "----- NEW SONG -----" line — a new "Download Word/PDF
+//           template" button gives you the exact layout, ready to fill in
+//           Word directly or export to PDF from Word/Google Docs. Word
+//           text comes out via mammoth, PDF text via pdf.js, both entirely
+//           in your browser (no file ever leaves it for this), then both
+//           run through the same field parser and the same review-table/
+//           checkbox/import flow the Excel path already had. Like every
+//           other import path here, it never authors or reproduces lyrics
+//           on its own — it only reshapes chart text you've already
+//           sourced yourself, this time out of a Word or PDF file.
+export const APP_VERSION = "1.39.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

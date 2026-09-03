@@ -17,20 +17,11 @@ import * as XLSX from "xlsx";
 import { Genre, GENRES } from "./types";
 import { convertUgChartToInline } from "./chartImport";
 import { extractYoutubeId } from "./songId";
-
-export interface ParsedSongRow {
-  rowNumber: number; // 1-based spreadsheet row, for user-facing messages
-  title: string;
-  singers: string[];
-  movie: string | null;
-  year: number | null;
-  genres: Genre[];
-  unknownGenres: string[];
-  youtubeId: string | null;
-  repository: string | null;
-  chart: string[];
-  errors: string[];
-}
+// Re-exported so this file's ParsedSongRow and the PDF/Word importer's
+// (lib/textSongParser.ts) are the exact same type, not just structurally
+// identical copies that could quietly drift apart later.
+import type { ParsedSongRow } from "./songRowValidation";
+export type { ParsedSongRow } from "./songRowValidation";
 
 const HEADER_ALIASES: Record<string, keyof typeof FIELD_KEYS> = {
   title: "title",

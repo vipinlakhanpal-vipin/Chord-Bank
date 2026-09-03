@@ -37,21 +37,33 @@ function HomePageInner() {
   const [year, setYear] = useState<string>("all");
   const [singer, setSinger] = useState<string>("all");
   const [genre, setGenre] = useState<Genre | "all">("all");
+  const [repository, setRepository] = useState<string>("all");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (searchParams.get("focus") === "search") {
       searchInputRef.current?.focus();
     }
+    // Coming from the Repositories page ("View songs" on a repo chip) —
+    // land here with that repository already selected as a filter.
+    const repoParam = searchParams.get("repo");
+    if (repoParam) setRepository(repoParam);
   }, [searchParams]);
 
   useEffect(() => {
     setPage(1);
-  }, [query, onlyPlayable, year, singer, genre, viewMode]);
+  }, [query, onlyPlayable, year, singer, genre, repository, viewMode]);
 
   const years = useMemo(() => Array.from(new Set(SONGS.map((s) => s.year))).sort((a, b) => b - a), [SONGS]);
   const singers = useMemo(
     () => Array.from(new Set(SONGS.flatMap((s) => s.singers))).sort((a, b) => a.localeCompare(b)),
+    [SONGS]
+  );
+  const repositories = useMemo(
+    () =>
+      Array.from(new Set(SONGS.map((s) => s.repository).filter((r): r is string => !!r))).sort((a, b) =>
+        a.localeCompare(b)
+      ),
     [SONGS]
   );
 
@@ -65,13 +77,14 @@ function HomePageInner() {
       if (year !== "all" && s.year !== Number(year)) return false;
       if (singer !== "all" && !s.singers.includes(singer)) return false;
       if (genre !== "all" && !s.genres.includes(genre)) return false;
+      if (repository !== "all" && s.repository !== repository) return false;
       if (onlyPlayable) {
         const { playableAsIs, bestShift } = matchScore(extractChordsFromChart(s.chart));
         return playableAsIs || bestShift !== null;
       }
       return true;
     });
-  }, [SONGS, query, onlyPlayable, year, singer, genre]);
+  }, [SONGS, query, onlyPlayable, year, singer, genre, repository]);
 
   const bySinger = useMemo(() => {
     const map = new Map<string, typeof SONGS>();
@@ -86,7 +99,9 @@ function HomePageInner() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pagedFlat = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const activeFilterCount = [year !== "all", singer !== "all", genre !== "all", onlyPlayable].filter(Boolean).length;
+  const activeFilterCount = [year !== "all", singer !== "all", genre !== "all", repository !== "all", onlyPlayable].filter(
+    Boolean
+  ).length;
 
   return (
     <div className="flex flex-col gap-5">
@@ -101,7 +116,7 @@ function HomePageInner() {
         </div>
         <Link
           href={user ? "/songs/new" : "/login"}
-          className="shrink-0 text-xs font-semibold px-3 py-2 rounded-full bg-teal text-white whitespace-nowrap"
+          className="shrink-0 text-xs font-semibold px-3 py-2 rounded-full text-white bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md whitespace-nowrap"
         >
           + Add Song
         </Link>
@@ -119,17 +134,13 @@ function HomePageInner() {
         <div className="inline-flex gap-1.5 self-start">
           <button
             onClick={() => setViewMode("bySinger")}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-              viewMode === "bySinger" ? FILTER_TINTS.indigo.active : FILTER_TINTS.indigo.inactive
-            }`}
+            className={pillClass(FILTER_TINTS.indigo, viewMode === "bySinger")}
           >
             By Singer
           </button>
           <button
             onClick={() => setViewMode("all")}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-              viewMode === "all" ? FILTER_TINTS.teal.active : FILTER_TINTS.teal.inactive
-            }`}
+            className={pillClass(FILTER_TINTS.teal, viewMode === "all")}
           >
             All Songs
           </button>
@@ -161,12 +172,14 @@ function HomePageInner() {
           onChange={(v) => setGenre(v as Genre | "all")}
           options={GENRES.map((g) => [g, g])}
         />
-        <button
-          onClick={() => setOnlyPlayable((v) => !v)}
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-            onlyPlayable ? "bg-teal text-white border-teal" : "bg-teal/25 border-teal/70 text-teal"
-          }`}
-        >
+        <FilterSelect
+          label="Repository"
+          color="rose"
+          value={repository}
+          onChange={setRepository}
+          options={repositories.map((r) => [r, r])}
+        />
+        <button onClick={() => setOnlyPlayable((v) => !v)} className={pillClass(FILTER_TINTS.teal, onlyPlayable)}>
           Only playable
         </button>
         <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/10 dark:bg-white/15 text-ink/70 dark:text-cream/80">
@@ -179,6 +192,7 @@ function HomePageInner() {
               setYear("all");
               setSinger("all");
               setGenre("all");
+              setRepository("all");
               setOnlyPlayable(false);
             }}
             className="text-xs text-ink/40 dark:text-cream/40 underline"
@@ -277,32 +291,25 @@ function EmptyState({
   );
 }
 
-// Full literal class strings per color (Tailwind's build-time scanner needs the
-// exact "bg-saffron/10" etc. token to appear somewhere in the source — building
-// these with string interpolation like `bg-${color}/10` would silently produce
-// no styles at all).
+// Solid gradient fill + white text, same recipe as the Genre pills on Add Song
+// — like a contacts app's category chips, not a tinted outline. Every pill
+// stays a real, filled color at all times; selection is shown by dimming the
+// unselected ones rather than switching color families. Full literal class
+// strings — Tailwind's build-time scanner needs the exact "from-amber-500
+// to-orange-600" token to appear in source, so no string interpolation here.
 const FILTER_TINTS = {
-  saffron: {
-    inactive: "border-saffron/70 bg-saffron/25 text-saffron dark:text-saffron",
-    active: "border-saffron bg-saffron text-white",
-    chevronInactive: "text-saffron/90",
-  },
-  indigo: {
-    inactive: "border-indigo/70 bg-indigo/25 text-indigo dark:text-indigo",
-    active: "border-indigo bg-indigo text-white",
-    chevronInactive: "text-indigo/90",
-  },
-  magenta: {
-    inactive: "border-magenta/70 bg-magenta/25 text-magenta dark:text-magenta",
-    active: "border-magenta bg-magenta text-white",
-    chevronInactive: "text-magenta/90",
-  },
-  teal: {
-    inactive: "border-teal/70 bg-teal/25 text-teal dark:text-teal",
-    active: "border-teal bg-teal text-white",
-    chevronInactive: "text-teal/90",
-  },
+  saffron: "from-amber-500 to-orange-600",
+  indigo: "from-indigo-500 to-violet-700",
+  magenta: "from-fuchsia-500 to-pink-700",
+  teal: "from-teal-500 to-cyan-700",
+  rose: "from-rose-500 to-red-700",
 } as const;
+
+function pillClass(gradient: string, active: boolean) {
+  return `text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${gradient} transition-all ${
+    active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-50 hover:opacity-75"
+  }`;
+}
 
 function FilterSelect({
   label,
@@ -317,14 +324,15 @@ function FilterSelect({
   options: [string, string][];
   color: keyof typeof FILTER_TINTS;
 }) {
-  const tint = FILTER_TINTS[color];
+  const gradient = FILTER_TINTS[color];
+  const active = value !== "all";
   return (
     <div className="relative inline-flex">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full border cursor-pointer outline-none transition-colors ${
-          value === "all" ? tint.inactive : tint.active
+        className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full cursor-pointer outline-none text-white bg-gradient-to-br ${gradient} transition-all ${
+          active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-50 hover:opacity-75"
         }`}
       >
         <option value="all">{label}: All</option>
@@ -341,9 +349,7 @@ function FilterSelect({
         fill="none"
         stroke="currentColor"
         strokeWidth="2.5"
-        className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 ${
-          value === "all" ? tint.chevronInactive : "text-white"
-        }`}
+        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white"
       >
         <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>

@@ -116,7 +116,7 @@ function HomePageInner() {
         </div>
         <Link
           href={user ? "/songs/new" : "/login"}
-          className="shrink-0 text-xs font-semibold px-3 py-2 rounded-full text-white bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md whitespace-nowrap"
+          className="shrink-0 text-xs font-semibold px-3 py-2 rounded-full text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md whitespace-nowrap"
         >
           + Add Song
         </Link>
@@ -301,11 +301,17 @@ function EmptyState({
 // drops below ~65% opacity — a darker gradient faded much past that reads as
 // nearly invisible against this app's dark background (teal-to-cyan-700 at
 // 50% opacity was the culprit that made "Only playable" disappear).
+// IMPORTANT: never use "teal-NNN", "indigo-NNN", "saffron-NNN", "magenta-NNN"
+// or "turquoise-NNN" — tailwind.config.ts overrides those color *names* with
+// flat brand hexes, which wipes out Tailwind's own shade scale for them, so
+// e.g. "from-teal-500" silently generates no CSS at all. Use a real
+// full-shade-scale color (cyan, blue, violet, rose, amber, fuchsia, etc.)
+// wherever a gradient needs numbered shades.
 const FILTER_TINTS = {
   saffron: "from-amber-500 to-orange-600",
-  indigo: "from-indigo-500 to-violet-600",
+  indigo: "from-blue-500 to-violet-700",
   magenta: "from-fuchsia-500 to-pink-600",
-  teal: "from-teal-400 to-cyan-600",
+  teal: "from-cyan-500 to-sky-700",
   rose: "from-rose-500 to-red-600",
 } as const;
 

@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import AriaChat from "./AriaChat";
 import UpdatesButton from "./UpdatesButton";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
+import { useAuthUser } from "@/lib/useAuthUser";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { available: updatePending, acknowledge } = useUpdateAvailable();
+  const { user } = useAuthUser();
 
   const isActive = (href: string) => pathname === href;
 
@@ -18,8 +20,11 @@ export default function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
-        <NavItem href="/" label="Home" active={isActive("/")}>
-          <HomeIcon />
+        {/* Home is still one tap away via the logo in the top navbar, so this
+            slot — the one every user hits most, adding songs — gets top billing
+            here instead of a redundant Home tab. */}
+        <NavItem href={user ? "/songs/new" : "/login"} label="Add Song" active={isActive("/songs/new")}>
+          <AddIcon />
         </NavItem>
 
         <div className="flex flex-col items-center gap-1 py-1">
@@ -101,11 +106,10 @@ function FavHeartIcon({ active }: { active: boolean }) {
   );
 }
 
-function HomeIcon() {
+function AddIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

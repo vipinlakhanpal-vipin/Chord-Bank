@@ -7,6 +7,7 @@ import Logo from "./Logo";
 import UpdatesButton from "./UpdatesButton";
 import { APP_VERSION, formatVersion } from "@/lib/version";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
+import { useAuthUser } from "@/lib/useAuthUser";
 
 const LINKS = [
   { href: "/record", label: "Record" },
@@ -19,6 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { theme, toggle } = useTheme();
   const { available: updatePending, acknowledge } = useUpdateAvailable();
+  const { user } = useAuthUser();
 
   return (
     <nav className="fixed top-0 inset-x-0 z-20 backdrop-blur bg-cream/90 dark:bg-ink/90 border-b border-black/5 dark:border-white/10">
@@ -27,7 +29,7 @@ export default function Navbar() {
           <span className="flex items-center gap-2 min-w-0">
             <Link href="/" className="flex items-center gap-2 min-w-0">
               <Logo size={28} />
-              <span className="font-display font-extrabold text-base sm:text-lg text-magenta dark:text-saffron truncate">
+              <span className="font-display font-extrabold text-base sm:text-lg text-turquoise truncate">
                 Chord Bank
               </span>
             </Link>
@@ -60,17 +62,18 @@ export default function Navbar() {
           </span>
         </div>
         <div className="hidden sm:flex items-center gap-1 sm:gap-4 shrink-0">
+          {/* Home is still one tap away via the logo/title on the left, so this
+              slot goes to the action you'll use constantly instead. */}
           <Link
-            href="/"
-            aria-label="Home"
-            title="Home"
+            href={user ? "/songs/new" : "/login"}
+            aria-label="Add Song"
+            title="Add Song"
             className={`flex w-8 h-8 rounded-full items-center justify-center ${
-              pathname === "/" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+              pathname === "/songs/new" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
             }`}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
           {LINKS.map((l) => (
@@ -102,7 +105,7 @@ export default function Navbar() {
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
               pathname === "/record"
                 ? "bg-teal text-white border-teal"
-                : "bg-teal/10 border-teal/30 text-teal"
+                : "bg-teal/25 border-teal/70 text-teal"
             }`}
           >
             <MicIcon />
@@ -115,7 +118,7 @@ export default function Navbar() {
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
               pathname === "/repositories"
                 ? "bg-saffron text-white border-saffron"
-                : "bg-saffron/10 border-saffron/30 text-saffron"
+                : "bg-saffron/25 border-saffron/70 text-saffron"
             }`}
           >
             <StackIcon />

@@ -7,6 +7,22 @@ import { Genre, GENRES, Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { convertUgChartToInline } from "@/lib/chartImport";
 
+// Each genre gets its own color, same treatment as the Year/Singer/Genre/Only
+// playable filter pills on Home (a tinted border+background when off, solid
+// fill when on) so the row reads as distinct categories instead of one
+// washed-out tint repeated eight times. Full literal class strings — Tailwind's
+// build-time scanner needs the exact "border-rose-500/70" token in source.
+const GENRE_STYLES: Record<Genre, { inactive: string; active: string }> = {
+  Romantic: { inactive: "border-rose-500/70 bg-rose-500/25 text-rose-500", active: "border-rose-500 bg-rose-500 text-white" },
+  Classic: { inactive: "border-amber-500/70 bg-amber-500/25 text-amber-500", active: "border-amber-500 bg-amber-500 text-white" },
+  Friendship: { inactive: "border-emerald-500/70 bg-emerald-500/25 text-emerald-500", active: "border-emerald-500 bg-emerald-500 text-white" },
+  Wedding: { inactive: "border-fuchsia-500/70 bg-fuchsia-500/25 text-fuchsia-500", active: "border-fuchsia-500 bg-fuchsia-500 text-white" },
+  Party: { inactive: "border-orange-500/70 bg-orange-500/25 text-orange-500", active: "border-orange-500 bg-orange-500 text-white" },
+  Emotional: { inactive: "border-sky-500/70 bg-sky-500/25 text-sky-500", active: "border-sky-500 bg-sky-500 text-white" },
+  Devotional: { inactive: "border-violet-500/70 bg-violet-500/25 text-violet-500", active: "border-violet-500 bg-violet-500 text-white" },
+  Patriotic: { inactive: "border-lime-600/70 bg-lime-600/25 text-lime-600", active: "border-lime-600 bg-lime-600 text-white" },
+};
+
 // Shared by /songs/new (create) and /songs/[id]/edit (update). This form never
 // writes lyrics on its own — it just takes whatever chart text you paste in
 // (from wherever you sourced it) and saves it to your Supabase songs table.
@@ -184,9 +200,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
               key={g}
               onClick={() => toggleGenre(g)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-                genres.includes(g)
-                  ? "bg-magenta text-white border-magenta"
-                  : "bg-magenta/10 border-magenta/30 text-magenta"
+                genres.includes(g) ? GENRE_STYLES[g].active : GENRE_STYLES[g].inactive
               }`}
             >
               {g}

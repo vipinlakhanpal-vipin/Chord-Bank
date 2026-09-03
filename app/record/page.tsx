@@ -118,6 +118,14 @@ export default function RecordPage() {
     setRecording(false);
   };
 
+  const deleteRecording = (url: string) => {
+    // These only ever exist as in-memory blob URLs (see the note below the
+    // list) — nothing on a server to delete, just this tab's own list and
+    // the object URL itself, so the browser can actually free the memory.
+    URL.revokeObjectURL(url);
+    setRecordings((prev) => prev.filter((r) => r.url !== url));
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="card p-4">
@@ -209,6 +217,12 @@ export default function RecordPage() {
                 <a href={r.url} download={r.name} className="text-sm text-teal underline shrink-0">
                   Download
                 </a>
+                <button
+                  onClick={() => deleteRecording(r.url)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-red-500 to-rose-700 shadow-sm shrink-0"
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>

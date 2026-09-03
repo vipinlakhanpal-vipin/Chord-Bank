@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { notFound, useParams } from "next/navigation";
-import { SONGS } from "@/data/songs";
+import Link from "next/link";
+import { notFound, useParams, useRouter } from "next/navigation";
+import { useSong } from "@/lib/useSongs";
+import { useAuthUser } from "@/lib/useAuthUser";
+import { supabase } from "@/lib/supabaseClient";
 import ChordLine from "@/components/ChordLine";
 import YouTubeMiniPlayer from "@/components/YouTubeMiniPlayer";
 import HeartButton from "@/components/HeartButton";
@@ -14,17 +17,29 @@ import {
 
 export default function SongPage() {
   const params = useParams<{ id: string }>();
-  const song = SONGS.find((s) => s.id === params.id);
+  const router = useRouter();
+  const { song } = useSong(params.id);
+  const { user } = useAuthUser();
   const [shift, setShift] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const viableShifts = useMemo(() => {
     if (!song) return [];
     return findPlayableTranspositions(extractChordsFromChart(song.chart));
   }, [song]);
 
-  if (!song) return notFound();
+  if (song === undefined) return null;
+  if (song === null) return notFound();
 
   const transposedChart = song.chart.map((line) => transposeLine(line, shift));
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    const { error } = await supabase.from("songs").delete().eq("id", song.id);
+    setDeleting(false);
+    if (!error) router.push("/");
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,11 +53,35 @@ export default function SongPage() {
             {song.singers.join(", ")} {song.movie && `· ${song.movie}`} · {song.year}
           </p>
         </div>
-        {song.youtubeId && (
-          <div className="shrink-0 mt-1">
-            <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} />
-          </div>
-        )}
+        <div className="flex items-center gap-2 shrink-0 mt-1">
+          {song.youtubeId && <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} />}
+          {user && (
+            <>
+              <Link
+                href={`/songs/${song.id}/edit`}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/20"
+              >
+                Edit
+              </Link>
+              {confirmDelete ? (
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-red-500 text-white disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Confirm delete"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full border border-red-500/30 text-red-500"
+                >
+                  Delete
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       <div className="card p-4">

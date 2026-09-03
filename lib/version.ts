@@ -181,7 +181,12 @@
 //           bar animating away resizes the viewport, and a plain fixed
 //           element can re-settle against that mid-frame) — both are now
 //           pinned to their own GPU layer so they stay put while you scroll.
-export const APP_VERSION = "1.31.0";
+//   1.31.1 — Real bug fix: "Only playable" and "All Songs" were nearly
+//            invisible — their dimmed teal pill was faded to 50% opacity on
+//            top of an already-dark teal/cyan gradient, which all but
+//            vanished against the app's dark background. Dimmed pills now
+//            stay at a visible 65%+ opacity and use lighter gradient tones.
+export const APP_VERSION = "1.31.1";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

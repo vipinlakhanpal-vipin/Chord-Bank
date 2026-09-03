@@ -6,21 +6,23 @@ import { supabase } from "@/lib/supabaseClient";
 import { Genre, GENRES, Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { convertUgChartToInline } from "@/lib/chartImport";
+import { useRepositories } from "@/lib/useRepositories";
 
-// Each genre gets its own color, same treatment as the Year/Singer/Genre/Only
-// playable filter pills on Home (a tinted border+background when off, solid
-// fill when on) so the row reads as distinct categories instead of one
-// washed-out tint repeated eight times. Full literal class strings — Tailwind's
-// build-time scanner needs the exact "border-rose-500/70" token in source.
-const GENRE_STYLES: Record<Genre, { inactive: string; active: string }> = {
-  Romantic: { inactive: "border-rose-500/70 bg-rose-500/25 text-rose-500", active: "border-rose-500 bg-rose-500 text-white" },
-  Classic: { inactive: "border-amber-500/70 bg-amber-500/25 text-amber-500", active: "border-amber-500 bg-amber-500 text-white" },
-  Friendship: { inactive: "border-emerald-500/70 bg-emerald-500/25 text-emerald-500", active: "border-emerald-500 bg-emerald-500 text-white" },
-  Wedding: { inactive: "border-fuchsia-500/70 bg-fuchsia-500/25 text-fuchsia-500", active: "border-fuchsia-500 bg-fuchsia-500 text-white" },
-  Party: { inactive: "border-orange-500/70 bg-orange-500/25 text-orange-500", active: "border-orange-500 bg-orange-500 text-white" },
-  Emotional: { inactive: "border-sky-500/70 bg-sky-500/25 text-sky-500", active: "border-sky-500 bg-sky-500 text-white" },
-  Devotional: { inactive: "border-violet-500/70 bg-violet-500/25 text-violet-500", active: "border-violet-500 bg-violet-500 text-white" },
-  Patriotic: { inactive: "border-lime-600/70 bg-lime-600/25 text-lime-600", active: "border-lime-600 bg-lime-600 text-white" },
+// Solid gradient fill + white text per genre — like a contacts app's category
+// chips, not a tinted outline. Selection is shown by dimming the unselected
+// ones (ring + full brightness when picked) rather than switching color
+// families, so every chip stays a real, filled color at all times. Full
+// literal class strings — Tailwind's build-time scanner needs the exact
+// "from-rose-500 to-pink-600" token to appear in source.
+const GENRE_STYLES: Record<Genre, string> = {
+  Romantic: "from-rose-500 to-pink-600",
+  Classic: "from-amber-500 to-orange-600",
+  Friendship: "from-emerald-500 to-green-600",
+  Wedding: "from-fuchsia-500 to-purple-600",
+  Party: "from-orange-500 to-red-600",
+  Emotional: "from-sky-500 to-blue-600",
+  Devotional: "from-violet-500 to-indigo-600",
+  Patriotic: "from-lime-500 to-green-700",
 };
 
 // Shared by /songs/new (create) and /songs/[id]/edit (update). This form never
@@ -61,8 +63,10 @@ export default function SongForm({ existing }: { existing?: Song }) {
   const [genres, setGenres] = useState<Genre[]>(existing?.genres ?? []);
   const [youtubeInput, setYoutubeInput] = useState(existing?.youtubeId ?? "");
   const [chartText, setChartText] = useState(existing?.chart.join("\n") ?? "");
+  const [repository, setRepository] = useState(existing?.repository ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { names: repoNames, createRepository } = useRepositories();
 
   const chartLines = useMemo(
     () => chartText.split("\n").map((l) => l.replace(/\r$/, "")),
@@ -120,6 +124,9 @@ export default function SongForm({ existing }: { existing?: Song }) {
 
     setSaving(true);
 
+    const trimmedRepo = repository.trim();
+    if (trimmedRepo) await createRepository(trimmedRepo); // so it shows up in Repositories even at 0-then-1 songs
+
     const payload = {
       title: trimmedTitle,
       singers: singerList,
@@ -130,6 +137,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
       chart: chartLines,
       genres,
       added_via: "manual" as const,
+      repository: trimmedRepo || null,
     };
 
     if (isEdit && existing) {
@@ -199,14 +207,33 @@ export default function SongForm({ existing }: { existing?: Song }) {
               type="button"
               key={g}
               onClick={() => toggleGenre(g)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-                genres.includes(g) ? GENRE_STYLES[g].active : GENRE_STYLES[g].inactive
+              className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${GENRE_STYLES[g]} transition-all ${
+                genres.includes(g) ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-45 hover:opacity-70"
               }`}
             >
               {g}
             </button>
           ))}
         </div>
+      </Field>
+
+      <Field
+        label="Repository (optional)"
+        full
+        hint={`Group this song under a name of your choosing — e.g. "Vipin" — so it shows up when you filter Home by that repository. Pick an existing one from the list, or type a new name to create it.`}
+      >
+        <input
+          value={repository}
+          onChange={(e) => setRepository(e.target.value)}
+          list="repository-options"
+          placeholder="e.g. Vipin"
+          className={INPUT_CLASS}
+        />
+        <datalist id="repository-options">
+          {repoNames.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
       </Field>
 
       <Field

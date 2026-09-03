@@ -16,13 +16,22 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
+      // transform-gpu forces its own compositing layer — on iOS Safari, a
+      // plain `fixed bottom-0` element can visibly jump/re-settle mid-scroll
+      // as the address bar animates away, because the browser recalculates
+      // its position against the resizing viewport on every frame; putting
+      // it on the GPU layer keeps it pinned smoothly instead.
+      className="sm:hidden fixed bottom-0 inset-x-0 z-40 transform-gpu bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
-        {/* Home is still one tap away via the logo in the top navbar, so this
-            slot — the one every user hits most, adding songs — gets top billing
-            here instead of a redundant Home tab. */}
+      <div className="grid grid-cols-7 items-end px-0.5 pt-1.5 pb-1.5">
+        {/* Home was dropped from here once (the logo up top still linked to
+            it), but that made the song list/filters hard to find on mobile —
+            it's back as its own tab, with Add Song right next to it. */}
+        <NavItem href="/" label="Home" active={isActive("/")}>
+          <HomeIcon />
+        </NavItem>
+
         <NavItem href={user ? "/songs/new" : "/login"} label="Add Song" active={isActive("/songs/new")}>
           <AddIcon />
         </NavItem>
@@ -102,6 +111,15 @@ function FavHeartIcon({ active }: { active: boolean }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

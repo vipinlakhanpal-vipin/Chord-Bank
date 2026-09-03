@@ -23,7 +23,7 @@ export default function Navbar() {
   const { user } = useAuthUser();
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-20 backdrop-blur bg-cream/90 dark:bg-ink/90 border-b border-black/5 dark:border-white/10">
+    <nav className="fixed top-0 inset-x-0 z-20 transform-gpu backdrop-blur bg-cream/90 dark:bg-ink/90 border-b border-black/5 dark:border-white/10">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex flex-col leading-tight min-w-0">
           <span className="flex items-center gap-2 min-w-0">
@@ -68,13 +68,14 @@ export default function Navbar() {
             href={user ? "/songs/new" : "/login"}
             aria-label="Add Song"
             title="Add Song"
-            className={`flex w-8 h-8 rounded-full items-center justify-center ${
-              pathname === "/songs/new" ? "bg-teal text-white" : "text-ink/60 dark:text-cream/60"
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap text-white bg-gradient-to-br from-teal-500 to-cyan-700 transition-all ${
+              pathname === "/songs/new" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-80 hover:opacity-100"
             }`}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
+            Add Song
           </Link>
           {LINKS.map((l) => (
             <Link
@@ -82,7 +83,7 @@ export default function Navbar() {
               href={l.href}
               className={`text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
                 pathname === l.href
-                  ? "bg-teal text-white font-semibold"
+                  ? "text-white font-semibold bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md"
                   : "text-ink/70 dark:text-cream/70"
               }`}
             >
@@ -102,10 +103,8 @@ export default function Navbar() {
             href="/record"
             aria-label="Record"
             title="Record"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
-              pathname === "/record"
-                ? "bg-teal text-white border-teal"
-                : "bg-teal/25 border-teal/70 text-teal"
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-teal-500 to-cyan-700 transition-all ${
+              pathname === "/record" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-75 hover:opacity-100"
             }`}
           >
             <MicIcon />
@@ -115,10 +114,8 @@ export default function Navbar() {
             href="/repositories"
             aria-label="Repositories"
             title="Repositories"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
-              pathname === "/repositories"
-                ? "bg-saffron text-white border-saffron"
-                : "bg-saffron/25 border-saffron/70 text-saffron"
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 transition-all ${
+              pathname === "/repositories" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-75 hover:opacity-100"
             }`}
           >
             <StackIcon />

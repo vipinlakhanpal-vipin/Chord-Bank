@@ -207,7 +207,20 @@
 //           in. Your 3 existing songs are now tagged under the "Vipin"
 //           repository, and every new song defaults to "Vipin" in the
 //           Repository field (still fully editable/clearable).
-export const APP_VERSION = "1.32.0";
+//   1.33 — Song tile layout: moved Edit and Delete off the top-left corner
+//           (was overlapping the title) down to a bottom action row —
+//           Edit bottom-left, Delete bottom-right, with the playable
+//           checkmark/shift badge dead-center between them. The checkmark
+//           badge is now a solid bright green pill (was a faint 10%-opacity
+//           tint) to match the "always full color" pill style everywhere
+//           else in the app. Also: the Repositories page's "Create a new
+//           repository" box (including the Create button) only ever
+//           rendered when you were logged in — with no signed-out state at
+//           all it just silently disappeared, which is exactly what "the
+//           Create button isn't visible" looks like. Now shows an explicit
+//           "Log in to create a new repository" message instead, same
+//           pattern already used on the song detail page's Edit/Delete.
+export const APP_VERSION = "1.33.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

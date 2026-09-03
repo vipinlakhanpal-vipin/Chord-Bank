@@ -1,13 +1,14 @@
 "use client";
 
-import { SONGS } from "@/data/songs";
 import SongCard from "@/components/SongCard";
 import { useFavouriteIds } from "@/lib/useFavourites";
+import { useSongs } from "@/lib/useSongs";
 
 const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5 sm:gap-2";
 
 export default function FavouritesPage() {
   const ids = useFavouriteIds();
+  const { songs: SONGS } = useSongs();
   const songs = SONGS.filter((s) => ids.includes(s.id));
 
   return (

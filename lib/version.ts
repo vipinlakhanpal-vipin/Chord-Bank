@@ -196,7 +196,18 @@
 //            chip were rendering with a missing or partial background.
 //            Replaced every one with a real full-shade-scale color (cyan,
 //            blue, violet, etc.) that looks the same but actually renders.
-export const APP_VERSION = "1.31.2";
+//   1.32 — Real fixes based on feedback: every pill (Genre, filters, Only
+//           playable, By Singer/All Songs, Add Song, Rec/Repo) is now at
+//           FULL brightness all the time instead of dimmed-until-selected —
+//           the selected one just gets an extra white ring on top of that
+//           same full color, so the whole row stays bright. Added an
+//           explicit "Home" link next to Record/Repositories/Favourite/
+//           Settings on desktop. Edit and Delete now show right on each
+//           song tile (not just after opening the song) when you're logged
+//           in. Your 3 existing songs are now tagged under the "Vipin"
+//           repository, and every new song defaults to "Vipin" in the
+//           Repository field (still fully editable/clearable).
+export const APP_VERSION = "1.32.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

@@ -1,11 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { SONGS } from "@/data/songs";
 import SongCard from "@/components/SongCard";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { GENRES, Genre } from "@/lib/types";
+import { useSongs } from "@/lib/useSongs";
+import { useAuthUser } from "@/lib/useAuthUser";
 
 const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5 sm:gap-2";
 // Sized to comfortably fill a wide desktop screen (up to 10 columns) before
@@ -27,6 +29,8 @@ export default function HomePage() {
 function HomePageInner() {
   const searchParams = useSearchParams();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { songs: SONGS, loading, error: songsError } = useSongs();
+  const { user } = useAuthUser();
   const [query, setQuery] = useState("");
   const [onlyPlayable, setOnlyPlayable] = useState(false);
   const [viewMode, setViewMode] = useState<"bySinger" | "all">("bySinger");
@@ -45,10 +49,10 @@ function HomePageInner() {
     setPage(1);
   }, [query, onlyPlayable, year, singer, genre, viewMode]);
 
-  const years = useMemo(() => Array.from(new Set(SONGS.map((s) => s.year))).sort((a, b) => b - a), []);
+  const years = useMemo(() => Array.from(new Set(SONGS.map((s) => s.year))).sort((a, b) => b - a), [SONGS]);
   const singers = useMemo(
     () => Array.from(new Set(SONGS.flatMap((s) => s.singers))).sort((a, b) => a.localeCompare(b)),
-    []
+    [SONGS]
   );
 
   const filtered = useMemo(() => {
@@ -67,7 +71,7 @@ function HomePageInner() {
       }
       return true;
     });
-  }, [query, onlyPlayable, year, singer, genre]);
+  }, [SONGS, query, onlyPlayable, year, singer, genre]);
 
   const bySinger = useMemo(() => {
     const map = new Map<string, typeof SONGS>();
@@ -86,13 +90,21 @@ function HomePageInner() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="card p-4">
-        <h1 className="text-xl font-display font-bold mb-1">
-          Welcome to <span className="text-magenta dark:text-saffron">Chord Bank</span>
-        </h1>
-        <p className="text-sm text-ink/60 dark:text-cream/60">
-          Your Bollywood chord library — every song filtered and transposed to fit the chords you play.
-        </p>
+      <div className="card p-4 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-display font-bold mb-1">
+            Welcome to <span className="text-magenta dark:text-saffron">Chord Bank</span>
+          </h1>
+          <p className="text-sm text-ink/60 dark:text-cream/60">
+            Your chord library — every song filtered and transposed to fit the chords you play.
+          </p>
+        </div>
+        <Link
+          href={user ? "/songs/new" : "/login"}
+          className="shrink-0 text-xs font-semibold px-3 py-2 rounded-full bg-teal text-white whitespace-nowrap"
+        >
+          + Add Song
+        </Link>
       </div>
 
       {/* Search + view toggle */}
@@ -158,7 +170,8 @@ function HomePageInner() {
           Only playable
         </button>
         <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/5 dark:bg-white/10 text-ink/60 dark:text-cream/60">
-          <span className="text-teal dark:text-saffron font-bold">{SONGS.length}</span> songs in the library
+          <span className="text-teal dark:text-saffron font-bold">{SONGS.length}</span> song
+          {SONGS.length === 1 ? "" : "s"} in the library
         </span>
         {activeFilterCount > 0 && (
           <button
@@ -188,7 +201,7 @@ function HomePageInner() {
             </div>
           ))}
           {bySinger.length === 0 && (
-            <p className="text-sm text-ink/50 dark:text-cream/50">No songs match yet — add more via Repositories.</p>
+            <EmptyState loading={loading} hasAny={SONGS.length > 0} user={user} error={songsError} />
           )}
         </div>
       ) : (
@@ -199,7 +212,7 @@ function HomePageInner() {
             ))}
           </div>
           {filtered.length === 0 && (
-            <p className="text-sm text-ink/50 dark:text-cream/50">No songs match yet — add more via Repositories.</p>
+            <EmptyState loading={loading} hasAny={SONGS.length > 0} user={user} error={songsError} />
           )}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-2">
@@ -225,6 +238,42 @@ function HomePageInner() {
         </>
       )}
     </div>
+  );
+}
+
+function EmptyState({
+  loading,
+  hasAny,
+  user,
+  error,
+}: {
+  loading: boolean;
+  hasAny: boolean;
+  user: unknown;
+  error: string | null;
+}) {
+  if (loading) {
+    return <p className="text-sm text-ink/50 dark:text-cream/50">Loading your library...</p>;
+  }
+  if (error) {
+    return (
+      <p className="text-sm text-red-500">
+        Couldn&apos;t load your library ({error}). Check your connection and try refreshing.
+      </p>
+    );
+  }
+  if (hasAny) {
+    // Songs exist, just none match the current search/filters.
+    return <p className="text-sm text-ink/50 dark:text-cream/50">No songs match those filters.</p>;
+  }
+  return (
+    <p className="text-sm text-ink/50 dark:text-cream/50">
+      Your library is empty —{" "}
+      <Link href={user ? "/songs/new" : "/login"} className="text-teal underline">
+        {user ? "add your first song" : "log in to add a song"}
+      </Link>
+      .
+    </p>
   );
 }
 

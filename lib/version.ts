@@ -248,7 +248,9 @@
 //           shows as a tappable colored pill right under the field, on both
 //           Add and Edit Song, on every device — tap one to tag the song to
 //           it, same full-bright-pill style as the Genre tags above it.
-export const APP_VERSION = "1.35.0";
+//   1.36 — Home heading simplified: dropped the "Welcome to" and shortened
+//           to just "Vipin Chord Bank".
+export const APP_VERSION = "1.36.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

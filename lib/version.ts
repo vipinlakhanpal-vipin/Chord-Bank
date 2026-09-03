@@ -282,7 +282,17 @@
 //           duplicated the "+ Add Song" button already on Home's top right,
 //           so the bottom nav is back to 6 icons: Home, Aria, Updates,
 //           Favourites, Settings, Refresh.
-export const APP_VERSION = "1.40.0";
+//   1.41 — Auto-scroll on the song page: a floating Play/Pause bar (bottom
+//           of the screen, out of the way of the chart) scrolls the chord
+//           chart hands-free while you play and sing, so you're not
+//           reaching for the screen every few lines. Slow/Med/Fast presets
+//           plus a slider for exact speed, your last speed is remembered
+//           for next time, and it stops on its own once you reach the
+//           bottom of the chart. Also: recordings on the Record page now
+//           have a Delete button next to Download, since until now the
+//           only way to clear one out of the list was to refresh the whole
+//           page and lose all of them.
+export const APP_VERSION = "1.41.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

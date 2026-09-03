@@ -68,7 +68,7 @@ export default function Navbar() {
             href={user ? "/songs/new" : "/login"}
             aria-label="Add Song"
             title="Add Song"
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap text-white bg-gradient-to-br from-teal-500 to-cyan-600 transition-all ${
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap text-white bg-gradient-to-br from-cyan-500 to-sky-700 transition-all ${
               pathname === "/songs/new" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-80 hover:opacity-100"
             }`}
           >
@@ -83,7 +83,7 @@ export default function Navbar() {
               href={l.href}
               className={`text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
                 pathname === l.href
-                  ? "text-white font-semibold bg-gradient-to-br from-teal-500 to-cyan-600 shadow-md"
+                  ? "text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
                   : "text-ink/70 dark:text-cream/70"
               }`}
             >
@@ -103,7 +103,7 @@ export default function Navbar() {
             href="/record"
             aria-label="Record"
             title="Record"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-teal-500 to-cyan-600 transition-all ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-cyan-500 to-sky-700 transition-all ${
               pathname === "/record" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-75 hover:opacity-100"
             }`}
           >

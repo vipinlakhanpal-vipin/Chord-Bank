@@ -14,6 +14,11 @@ import { useRepositories } from "@/lib/useRepositories";
 // families, so every chip stays a real, filled color at all times. Full
 // literal class strings — Tailwind's build-time scanner needs the exact
 // "from-rose-500 to-pink-600" token to appear in source.
+// NOTE: never use "teal-NNN" or "indigo-NNN" — tailwind.config.ts overrides
+// those color *names* with flat brand hexes, wiping out Tailwind's own
+// numbered shade scale for them, so e.g. "to-indigo-600" silently generates
+// no CSS (the Devotional chip below used to fade to nothing for exactly
+// this reason). Stick to real full-shade-scale colors like violet/blue/cyan.
 const GENRE_STYLES: Record<Genre, string> = {
   Romantic: "from-rose-500 to-pink-600",
   Classic: "from-amber-500 to-orange-600",
@@ -21,7 +26,7 @@ const GENRE_STYLES: Record<Genre, string> = {
   Wedding: "from-fuchsia-500 to-purple-600",
   Party: "from-orange-500 to-red-600",
   Emotional: "from-sky-500 to-blue-600",
-  Devotional: "from-violet-500 to-indigo-600",
+  Devotional: "from-violet-500 to-blue-700",
   Patriotic: "from-lime-500 to-green-700",
 };
 

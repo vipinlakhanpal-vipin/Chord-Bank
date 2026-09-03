@@ -11,22 +11,22 @@
 // once someone actually picks a .docx or .pdf file.
 
 export async function extractDocxText(buffer: ArrayBuffer): Promise<string> {
-  // mammoth's browser build is a plain CommonJS bundle (not authored as an
-  // ES module), so depending on the bundler's interop it can land on
-  // either the namespace object itself or its `.default` — check both
-  // instead of assuming one.
+  // Import mammoth's regular Node entry point, not its self-contained
+  // mammoth.browser.js bundle. That bundle is meant to be dropped in with a
+  // plain <script> tag (no further bundling) — feeding it through a SECOND
+  // bundler (webpack) as well touched off nested bluebird-promise scheduling
+  // that never actually flushed, so extractRawText's promise just hung
+  // forever with no error. Importing "mammoth" instead lets webpack apply
+  // mammoth's package.json "browser" field itself (swapping in its
+  // browser-safe unzip/file modules) as part of one single bundling pass —
+  // no second bundler involved — which resolves normally.
   type MammothLike = { extractRawText: (input: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string }> };
-  console.log("[import-debug] extractDocxText: before dynamic import");
-  const mod: unknown = await import("mammoth/mammoth.browser");
-  console.log("[import-debug] extractDocxText: after dynamic import", mod);
+  const mod: unknown = await import("mammoth");
   const asMammoth = (v: unknown): MammothLike | null =>
     v && typeof (v as MammothLike).extractRawText === "function" ? (v as MammothLike) : null;
   const mammoth = asMammoth(mod) ?? asMammoth((mod as { default?: unknown }).default);
-  console.log("[import-debug] extractDocxText: mammoth resolved?", !!mammoth);
   if (!mammoth) throw new Error("Could not load the Word document reader.");
-  console.log("[import-debug] extractDocxText: calling extractRawText");
   const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-  console.log("[import-debug] extractDocxText: extractRawText done");
   // mammoth's raw-text mode always inserts a blank line between paragraphs
   // (that's how it marks a paragraph break, not something a real empty
   // paragraph would look any different from) — since this importer's

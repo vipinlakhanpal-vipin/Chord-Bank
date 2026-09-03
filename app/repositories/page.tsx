@@ -10,14 +10,18 @@ import { useAuthUser } from "@/lib/useAuthUser";
 // in the app now, modeled on the "Family 7 / Friends 0 / ..." reference.
 // Cycles through a fixed palette so repositories stay visually distinct
 // without you having to assign colors yourself.
+// NOTE: never use "teal-NNN"/"indigo-NNN" shades — tailwind.config.ts
+// overrides those color names with flat brand hexes, wiping out Tailwind's
+// own numbered shade scale for them, so e.g. "from-teal-500" silently
+// generates no CSS. Use a real full-shade-scale color (cyan, blue, etc.).
 const CHIP_GRADIENTS = [
-  "from-indigo-500 to-blue-700",
+  "from-blue-500 to-violet-700",
   "from-emerald-500 to-green-700",
   "from-amber-500 to-orange-600",
   "from-rose-500 to-pink-700",
   "from-slate-500 to-slate-700",
   "from-violet-500 to-purple-700",
-  "from-teal-500 to-cyan-700",
+  "from-cyan-500 to-sky-700",
 ];
 
 export default function RepositoriesPage() {
@@ -79,7 +83,7 @@ export default function RepositoriesPage() {
             <button
               onClick={handleCreate}
               disabled={creating || !newName.trim()}
-              className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md disabled:opacity-50"
+              className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md disabled:opacity-50"
             >
               {creating ? "Creating..." : "Create"}
             </button>

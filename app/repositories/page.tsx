@@ -1,24 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Repository } from "@/lib/types";
 
 const LANGUAGES = ["Hindi", "Punjabi", "Marathi", "Bengali", "Tamil", "Telugu", "Gujarati"];
 
-const SEED_REPOS: Repository[] = [
-  {
-    id: "hindi-1970-2026",
-    language: "Hindi",
-    yearFrom: 1970,
-    yearTo: 2026,
-    status: "in-progress",
-    songCount: 5,
-    createdAt: "2026-08-01",
-  },
-];
-
 export default function RepositoriesPage() {
-  const [repos, setRepos] = useState<Repository[]>(SEED_REPOS);
+  const [repos, setRepos] = useState<Repository[]>([]);
   const [language, setLanguage] = useState("Hindi");
   const [yearFrom, setYearFrom] = useState(1970);
   const [yearTo, setYearTo] = useState(new Date().getFullYear());
@@ -41,14 +30,18 @@ export default function RepositoriesPage() {
       <div className="card p-4">
         <h1 className="text-xl font-display font-bold mb-1">Song Repositories</h1>
         <p className="text-sm text-ink/60 dark:text-cream/60">
-          A repository is a chord-and-lyrics collection for one language over a year range, built up the same
-          way as the Hindi/Bollywood one. It stores chord charts and lyric text only — never song audio — so it
-          stays on the right side of copyright while still being genuinely useful to practice from.
+          A repository groups your songs by language and year range for browsing — it&apos;s organizational only.
+          Songs themselves are added one at a time, with you pasting in the chart text yourself, from{" "}
+          <Link href="/songs/new" className="text-teal underline">
+            Add Song
+          </Link>
+          . There&apos;s no automated pipeline that writes chords or lyrics for you — that would mean an AI
+          reproducing copyrighted song lyrics, which isn&apos;t something this app can do.
         </p>
       </div>
 
       <div className="card p-4 flex flex-col gap-4">
-        <h2 className="font-semibold">Create a new repository</h2>
+        <h2 className="font-semibold">Tag a language + year range</h2>
         <div className="grid sm:grid-cols-3 gap-3">
           <div>
             <label className="text-sm block mb-1">Language</label>
@@ -82,13 +75,14 @@ export default function RepositoriesPage() {
           </div>
         </div>
         <button onClick={createRepo} className="self-start px-4 py-2 rounded-xl bg-indigo text-white text-sm font-medium">
-          Queue repository
+          Create repository tag
         </button>
         <p className="text-xs text-ink/50 dark:text-cream/50">
-          Queuing here creates the job. In production this triggers the AI ingestion workflow described in the
-          README — it finds candidate songs and titles for the language/year range, writes out chord-over-lyrics
-          charts in your A/E/Em/G/C/D combo (or flags the transposition needed), and a human review step before
-          anything is published, since chord accuracy matters when you&apos;re relying on it to play live.
+          This just creates a label to group songs under — go add the actual songs one at a time from{" "}
+          <Link href="/songs/new" className="text-teal underline">
+            Add Song
+          </Link>
+          .
         </p>
       </div>
 

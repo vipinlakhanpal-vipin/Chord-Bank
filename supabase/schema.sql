@@ -15,20 +15,22 @@ create table if not exists songs (
   genres text[] not null default '{}', -- from the fixed GENRES list in lib/types.ts, feeds the Genre filter
   tags text[],
   added_via text not null default 'manual' check (added_via in ('seed','manual','ai-workflow')),
+  repository text, -- free-text name (e.g. "Vipin") from the Repositories page/Add Song, feeds the Repository filter
   created_at timestamptz not null default now()
 );
 
--- Migrating an existing project that already ran the schema above? Run just this
--- one line in the SQL editor — safe to re-run, it no-ops if the column exists:
+-- Migrating an existing project that already ran the schema above? Run just these
+-- lines in the SQL editor — safe to re-run, each no-ops if already applied:
 --   alter table songs add column if not exists genres text[] not null default '{}';
+--   alter table songs add column if not exists repository text;
 
+-- A repository is just a name songs get tagged with (songs.repository above) —
+-- this table exists so a repository can be created ahead of any song being
+-- added to it (shows up as "Vipin · 0 songs" right away). If you're migrating
+-- from the old language/year-range repositories table, drop it first:
+--   drop table if exists repositories cascade;
 create table if not exists repositories (
-  id uuid primary key default uuid_generate_v4(),
-  language text not null,
-  year_from int not null,
-  year_to int not null,
-  status text not null default 'pending' check (status in ('pending','in-progress','complete')),
-  song_count int not null default 0,
+  name text primary key,
   created_at timestamptz not null default now()
 );
 
@@ -69,6 +71,10 @@ alter table repositories enable row level security;
 
 create policy "Anyone can read songs" on songs for select using (true);
 create policy "Anyone can read repositories" on repositories for select using (true);
+create policy "Logged-in users can add repositories" on repositories for insert
+  with check (auth.role() = 'authenticated');
+create policy "Logged-in users can delete repositories" on repositories for delete
+  using (auth.role() = 'authenticated');
 
 -- This is a personal chord library: once you're logged in (the app's own
 -- email/password auth, not a public signup flow anyone stumbles into), you can

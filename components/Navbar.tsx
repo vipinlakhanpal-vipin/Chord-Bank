@@ -10,6 +10,7 @@ import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
 import { useAuthUser } from "@/lib/useAuthUser";
 
 const LINKS = [
+  { href: "/", label: "Home" },
   { href: "/record", label: "Record" },
   { href: "/repositories", label: "Repositories" },
   { href: "/favourites", label: "Favourite" },
@@ -62,14 +63,12 @@ export default function Navbar() {
           </span>
         </div>
         <div className="hidden sm:flex items-center gap-1 sm:gap-4 shrink-0">
-          {/* Home is still one tap away via the logo/title on the left, so this
-              slot goes to the action you'll use constantly instead. */}
           <Link
             href={user ? "/songs/new" : "/login"}
             aria-label="Add Song"
             title="Add Song"
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap text-white bg-gradient-to-br from-cyan-500 to-sky-700 transition-all ${
-              pathname === "/songs/new" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-80 hover:opacity-100"
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-sm transition-all ${
+              pathname === "/songs/new" ? "ring-2 ring-white/80 shadow-md" : ""
             }`}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -103,8 +102,8 @@ export default function Navbar() {
             href="/record"
             aria-label="Record"
             title="Record"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-cyan-500 to-sky-700 transition-all ${
-              pathname === "/record" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-75 hover:opacity-100"
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-sm transition-all ${
+              pathname === "/record" ? "ring-2 ring-white/80 shadow-md" : ""
             }`}
           >
             <MicIcon />
@@ -114,8 +113,8 @@ export default function Navbar() {
             href="/repositories"
             aria-label="Repositories"
             title="Repositories"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 transition-all ${
-              pathname === "/repositories" ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-75 hover:opacity-100"
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm transition-all ${
+              pathname === "/repositories" ? "ring-2 ring-white/80 shadow-md" : ""
             }`}
           >
             <StackIcon />

@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuthUser } from "@/lib/useAuthUser";
 import YouTubeMiniPlayer from "./YouTubeMiniPlayer";
 import HeartButton from "./HeartButton";
 
@@ -15,15 +21,66 @@ function accentFor(id: string) {
 
 export default function SongCard({ song }: { song: Song }) {
   const { playableAsIs, bestShift } = matchScore(extractChordsFromChart(song.chart));
+  const { user } = useAuthUser();
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+
+  // Edit/Delete live right on the tile — not just after opening the song —
+  // since "where's the edit button" was the single most common question.
+  // Both stop the click from also triggering the card's own link-to-song-page.
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/songs/${song.id}/edit`);
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${song.title}"? This can't be undone.`)) return;
+    setDeleting(true);
+    const { error } = await supabase.from("songs").delete().eq("id", song.id);
+    if (error) {
+      setDeleting(false);
+      window.alert(`Couldn't delete: ${error.message}`);
+      return;
+    }
+    window.location.reload(); // simplest way to refresh the list everywhere it's shown
+  };
+
   return (
     <Link
       href={`/songs/${song.id}`}
-      className={`relative card border-t-[3px] ${accentFor(song.id)} p-2 sm:p-1.5 flex flex-col gap-1 sm:gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0`}
+      className={`relative card border-t-[3px] ${accentFor(song.id)} p-2 sm:p-1.5 flex flex-col gap-1 sm:gap-0.5 hover:shadow-md hover:-translate-y-0.5 transition-all text-sm min-w-0 ${
+        deleting ? "opacity-40 pointer-events-none" : ""
+      }`}
     >
       <span className="absolute top-1 right-1 bg-white/80 dark:bg-ink/70 rounded-full p-0.5 leading-none">
         <HeartButton songId={song.id} size={13} />
       </span>
-      <h3 className="font-semibold leading-snug text-[13px] sm:text-[11.5px] line-clamp-2 pr-4">{song.title}</h3>
+      {user && (
+        <span className="absolute top-1 left-1 flex items-center gap-0.5">
+          <button
+            onClick={handleEdit}
+            aria-label="Edit song"
+            title="Edit"
+            className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-sm"
+          >
+            <EditIcon />
+          </button>
+          <button
+            onClick={handleDelete}
+            aria-label="Delete song"
+            title="Delete"
+            className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-red-400 to-rose-600 shadow-sm"
+          >
+            <TrashIcon />
+          </button>
+        </span>
+      )}
+      <h3 className={`font-semibold leading-snug text-[13px] sm:text-[11.5px] line-clamp-2 pr-4 ${user ? "pl-9" : ""}`}>
+        {song.title}
+      </h3>
       <p className="text-[11px] sm:text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
       <div className="flex items-center justify-between mt-0.5 gap-1">
         {playableAsIs ? (
@@ -45,5 +102,25 @@ export default function SongCard({ song }: { song: Song }) {
         )}
       </div>
     </Link>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path
+        d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

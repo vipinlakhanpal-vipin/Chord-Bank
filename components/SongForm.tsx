@@ -9,10 +9,10 @@ import { convertUgChartToInline } from "@/lib/chartImport";
 import { useRepositories } from "@/lib/useRepositories";
 
 // Solid gradient fill + white text per genre — like a contacts app's category
-// chips, not a tinted outline. Selection is shown by dimming the unselected
-// ones (ring + full brightness when picked) rather than switching color
-// families, so every chip stays a real, filled color at all times. Full
-// literal class strings — Tailwind's build-time scanner needs the exact
+// chips, not a tinted outline. Every chip is at FULL brightness ALL the
+// time, picked or not — no opacity dimming — and a picked genre just gets an
+// extra white ring/shadow on top of that same full color. Full literal class
+// strings — Tailwind's build-time scanner needs the exact
 // "from-rose-500 to-pink-600" token to appear in source.
 // NOTE: never use "teal-NNN" or "indigo-NNN" — tailwind.config.ts overrides
 // those color *names* with flat brand hexes, wiping out Tailwind's own
@@ -68,7 +68,10 @@ export default function SongForm({ existing }: { existing?: Song }) {
   const [genres, setGenres] = useState<Genre[]>(existing?.genres ?? []);
   const [youtubeInput, setYoutubeInput] = useState(existing?.youtubeId ?? "");
   const [chartText, setChartText] = useState(existing?.chart.join("\n") ?? "");
-  const [repository, setRepository] = useState(existing?.repository ?? "");
+  // Defaults to "Vipin" for a brand-new song — this app has one owner, so
+  // that's the repository almost every song belongs in; still fully
+  // editable/clearable, and an existing song keeps whatever it already has.
+  const [repository, setRepository] = useState(existing?.repository ?? "Vipin");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { names: repoNames, createRepository } = useRepositories();
@@ -212,8 +215,8 @@ export default function SongForm({ existing }: { existing?: Song }) {
               type="button"
               key={g}
               onClick={() => toggleGenre(g)}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${GENRE_STYLES[g]} transition-all ${
-                genres.includes(g) ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-45 hover:opacity-70"
+              className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${GENRE_STYLES[g]} shadow-sm transition-all ${
+                genres.includes(g) ? "ring-2 ring-white/80 shadow-md" : ""
               }`}
             >
               {g}

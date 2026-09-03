@@ -220,7 +220,13 @@
 //           Create button isn't visible" looks like. Now shows an explicit
 //           "Log in to create a new repository" message instead, same
 //           pattern already used on the song detail page's Edit/Delete.
-export const APP_VERSION = "1.33.0";
+//   1.33.1 — Found it: the Repositories page's "Create" button was never
+//            actually missing — it was disabled (and 50%-opacity-dimmed)
+//            whenever the name box was empty, which on the dark theme
+//            reads as "not there at all" until you start typing. Button
+//            is now full bright color always; an empty name shows "Give
+//            the repository a name" underneath instead of hiding the button.
+export const APP_VERSION = "1.33.1";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

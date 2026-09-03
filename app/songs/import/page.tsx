@@ -7,8 +7,19 @@ import { useAuthUser } from "@/lib/useAuthUser";
 import { useRepositories } from "@/lib/useRepositories";
 import { slugify } from "@/lib/songId";
 import { ParsedSongRow, buildTemplateWorkbook, parseSongsWorkbook } from "@/lib/xlsxImport";
+import { parseSongsFromText } from "@/lib/textSongParser";
+import { extractDocxText, extractPdfText, buildWordTemplate } from "@/lib/fileTextExtract";
 
 type RowStatus = "pending" | "importing" | "done" | "failed";
+type FileKind = "xlsx" | "docx" | "pdf";
+
+function fileKindFor(name: string): FileKind | null {
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".xlsx") || lower.endsWith(".xls")) return "xlsx";
+  if (lower.endsWith(".docx")) return "docx";
+  if (lower.endsWith(".pdf")) return "pdf";
+  return null;
+}
 
 interface ImportRow extends ParsedSongRow {
   include: boolean;
@@ -27,33 +38,62 @@ export default function ImportSongsPage() {
   const [importing, setImporting] = useState(false);
   const [importSummary, setImportSummary] = useState<{ ok: number; failed: number } | null>(null);
 
-  const handleDownloadTemplate = () => {
-    const bytes = buildTemplateWorkbook();
-    // TS's DOM lib wants a plain ArrayBuffer-backed BlobPart; xlsx's Uint8Array
-    // is typed against the wider ArrayBufferLike, so it needs an explicit cast.
-    const blob = new Blob([bytes as BlobPart], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const [templateBusy, setTemplateBusy] = useState<"xlsx" | "word" | null>(null);
+
+  const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "chord-bank-song-import-template.xlsx";
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadTemplate = () => {
+    const bytes = buildTemplateWorkbook();
+    // TS's DOM lib wants a plain ArrayBuffer-backed BlobPart; xlsx's Uint8Array
+    // is typed against the wider ArrayBufferLike, so it needs an explicit cast.
+    const blob = new Blob([bytes as BlobPart], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    downloadBlob(blob, "chord-bank-song-import-template.xlsx");
+  };
+
+  const handleDownloadWordTemplate = async () => {
+    setTemplateBusy("word");
+    try {
+      const blob = await buildWordTemplate();
+      downloadBlob(blob, "chord-bank-song-import-template.docx");
+    } finally {
+      setTemplateBusy(null);
+    }
+  };
+
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const kind = fileKindFor(file.name);
     setFileName(file.name);
     setParseError(null);
     setImportSummary(null);
+    if (!kind) {
+      setRows([]);
+      setParseError("That file type isn't supported — pick a .xlsx, .docx, or .pdf file.");
+      return;
+    }
     try {
       const buffer = await file.arrayBuffer();
-      const parsed = parseSongsWorkbook(buffer);
+      const parsed =
+        kind === "xlsx"
+          ? parseSongsWorkbook(buffer)
+          : parseSongsFromText(kind === "docx" ? await extractDocxText(buffer) : await extractPdfText(buffer));
       if (parsed.length === 0) {
         setRows([]);
-        setParseError("Couldn't find any song rows in that file — check it matches the template's columns.");
+        setParseError(
+          kind === "xlsx"
+            ? "Couldn't find any song rows in that file — check it matches the template's columns."
+            : "Couldn't find any songs in that file — check each song has a \"Title:\" line and, if there's more than one, that they're separated by a \"----- NEW SONG -----\" line, same as the template."
+        );
         return;
       }
       setRows(
@@ -158,13 +198,16 @@ export default function ImportSongsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="card p-4">
-        <h1 className="text-xl font-display font-bold mb-1">Import songs from Excel</h1>
+        <h1 className="text-xl font-display font-bold mb-1">Import songs from Excel, Word, or PDF</h1>
         <p className="text-sm text-ink/60 dark:text-cream/60">
-          One row per song — Title, Singers, Movie, Year, Genres, YouTube, Repository, Chart. Chart text can be pasted
-          straight from Ultimate Guitar (chords on their own line above the lyrics) or already in this app's inline{" "}
-          <code className="text-xs">[Chord]lyric</code> format — both auto-convert, same as the single-song Add form.
-          Use Alt+Enter (or Option+Return on Mac) inside the Chart cell for multiple lines. This never writes lyrics on
-          its own — it only imports chart text you've already sourced yourself, straight from your spreadsheet.
+          Excel: one row per song — Title, Singers, Movie, Year, Genres, YouTube, Repository, Chart. Word/PDF: one{" "}
+          <code className="text-xs">Label: value</code> per line (Title, Singers, Movie, Year, Genres, YouTube,
+          Repository, then a <code className="text-xs">Chart:</code> line followed by the chart itself), with multiple
+          songs separated by a <code className="text-xs">----- NEW SONG -----</code> line — download the matching
+          template below to see the exact layout. Chart text can be pasted straight from Ultimate Guitar (chords on
+          their own line above the lyrics) or already in this app&apos;s inline <code className="text-xs">[Chord]lyric</code>{" "}
+          format — both auto-convert, same as the single-song Add form. This never writes lyrics on its own — it only
+          imports chart text you&apos;ve already sourced yourself, straight from your file.
         </p>
       </div>
 
@@ -175,20 +218,34 @@ export default function ImportSongsPage() {
             onClick={handleDownloadTemplate}
             className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-violet-500 to-purple-700 shadow-md"
           >
-            Download template (.xlsx)
+            Download Excel template (.xlsx)
           </button>
+          <button
+            type="button"
+            onClick={handleDownloadWordTemplate}
+            disabled={templateBusy === "word"}
+            className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-fuchsia-500 to-purple-600 shadow-md disabled:cursor-not-allowed"
+          >
+            {templateBusy === "word" ? "Preparing…" : "Download Word/PDF template (.docx)"}
+          </button>
+        </div>
+        <p className="text-xs text-ink/50 dark:text-cream/50 -mt-1">
+          The Word template can be uploaded as-is, or exported to PDF from Word/Google Docs first (File → Save as /
+          Export → PDF) if a PDF is what you already have.
+        </p>
+        <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-black/5 dark:border-white/5">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
           >
-            Choose .xlsx file
+            Choose .xlsx, .docx, or .pdf file
           </button>
           {fileName && <span className="text-sm text-ink/60 dark:text-cream/60">{fileName}</span>}
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xlsx,.xls"
+            accept=".xlsx,.xls,.docx,.pdf"
             onChange={handleFile}
             className="hidden"
           />

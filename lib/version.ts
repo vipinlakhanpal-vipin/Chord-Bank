@@ -250,7 +250,15 @@
 //           it, same full-bright-pill style as the Genre tags above it.
 //   1.36 — Home heading simplified: dropped the "Welcome to" and shortened
 //           to just "Vipin Chord Bank".
-export const APP_VERSION = "1.36.0";
+//   1.37 — Repository picker on Add/Edit Song: swapped the tappable-pill row
+//           (from 1.35) for a real dropdown <select>. Pills read fine at a
+//           couple of repositories but would've turned into a long wrapping
+//           wall of buttons at 10-20+; a native select scrolls cleanly no
+//           matter how many repositories you create, and its dropdown works
+//           the same on iOS as everywhere else (unlike the datalist this
+//           whole thing started from). Type a new name in the box above it
+//           to create a repository, or pick an existing one from the list.
+export const APP_VERSION = "1.37.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

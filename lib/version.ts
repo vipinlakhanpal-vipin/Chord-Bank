@@ -258,7 +258,13 @@
 //           the same on iOS as everywhere else (unlike the datalist this
 //           whole thing started from). Type a new name in the box above it
 //           to create a repository, or pick an existing one from the list.
-export const APP_VERSION = "1.37.0";
+//   1.38 — Switched the Repository field back to the colored tappable pills
+//           (per feedback — the plain dropdown from 1.37 lost the look).
+//           To still handle a growing list without the row taking over the
+//           page, the pills now sit in a capped, scrollable box instead of
+//           just wrapping onto more and more lines — a couple of
+//           repositories is one short row, and 10-20+ scrolls in place.
+export const APP_VERSION = "1.38.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

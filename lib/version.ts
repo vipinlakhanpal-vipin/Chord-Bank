@@ -226,7 +226,20 @@
 //            reads as "not there at all" until you start typing. Button
 //            is now full bright color always; an empty name shows "Give
 //            the repository a name" underneath instead of hiding the button.
-export const APP_VERSION = "1.33.1";
+//   1.34 — Bulk song import from Excel: a new "Import from Excel" page
+//           (linked from the Add Song form) takes an .xlsx file — one row
+//           per song (Title, Singers, Movie, Year, Genres, YouTube,
+//           Repository, Chart) — parses and validates every row, shows a
+//           review table with per-row problems flagged, and imports
+//           whichever rows you check. Chart text auto-converts from an
+//           Ultimate-Guitar-style paste the same way the single-song form
+//           does. A "Download template" button gives you a ready-made
+//           .xlsx with the right columns and one filled-in example row.
+//           Like every other import path in this app, it never authors or
+//           reproduces lyrics on its own — it only reshapes chart text you
+//           already sourced yourself into rows in your own spreadsheet.
+//           PDF and Word import are next.
+export const APP_VERSION = "1.34.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

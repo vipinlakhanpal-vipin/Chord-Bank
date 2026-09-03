@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Genre, GENRES, Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
+import { convertUgChartToInline } from "@/lib/chartImport";
 
 // Shared by /songs/new (create) and /songs/[id]/edit (update). This form never
 // writes lyrics on its own — it just takes whatever chart text you paste in
@@ -61,6 +62,29 @@ export default function SongForm({ existing }: { existing?: Song }) {
   const toggleGenre = (g: Genre) => {
     setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
   };
+
+  // Ultimate Guitar (and most tab sites) put chords on their own line, spaced
+  // out above the plain lyric line below — not inline like this app needs.
+  // Intercepting the paste and running it through the converter means pasting
+  // straight from the source "just works": chords land inline automatically,
+  // and you can still hand-edit the result afterward to move any [Chord] tag
+  // to a different word if the auto-alignment isn't quite right.
+  const handleChartPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pasted = e.clipboardData.getData("text/plain");
+    if (!pasted) return;
+    const converted = convertUgChartToInline(pasted);
+    if (converted === pasted) return; // nothing to convert — let the normal paste happen
+    e.preventDefault();
+    const target = e.currentTarget;
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+    setChartText(chartText.slice(0, start) + converted + chartText.slice(end));
+  };
+
+  // Fallback for when paste interception doesn't fire (e.g. text dropped in,
+  // typed in over multiple steps, or a browser that blocks clipboard reads on
+  // paste) — reformats whatever's already in the box.
+  const handleReformat = () => setChartText((prev) => convertUgChartToInline(prev));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,15 +198,23 @@ export default function SongForm({ existing }: { existing?: Song }) {
       <Field
         label="Chord chart"
         full
-        hint={`Paste the chart you've sourced yourself, one line per line. Wrap chords in brackets like [G]lyric text, and mark sections with "## Verse", "## Chorus", "## Bridge" etc.`}
+        hint={`Paste straight from Ultimate Guitar or a similar site (chords on their own line above the lyrics) — it's auto-converted to inline [Chord]lyric format the moment you paste. Already-inline text pastes through unchanged. However it lands, you can freely retype or move any [Chord] tag to fix placement, and mark sections with "## Verse", "## Chorus", "## Bridge" etc.`}
       >
         <textarea
           value={chartText}
           onChange={(e) => setChartText(e.target.value)}
+          onPaste={handleChartPaste}
           rows={14}
           placeholder={"## Verse 1\n[G]Your [D]lyric line here\n[Em]Next line [C]here\n## Chorus\n..."}
           className={`${INPUT_CLASS} font-mono text-sm`}
         />
+        <button
+          type="button"
+          onClick={handleReformat}
+          className="mt-1.5 text-xs font-semibold text-teal underline"
+        >
+          Re-run auto-format on this text
+        </button>
       </Field>
 
       {preview && (

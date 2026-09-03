@@ -92,6 +92,17 @@ export default function RepositoriesPage() {
         </div>
       )}
 
+      {!user && (
+        <div className="card p-4">
+          <p className="text-sm text-ink/60 dark:text-cream/60">
+            <Link href="/login" className="text-teal underline font-semibold">
+              Log in
+            </Link>{" "}
+            to create a new repository.
+          </p>
+        </div>
+      )}
+
       {error && <p className="text-sm text-red-500">Couldn&apos;t load repositories ({error}).</p>}
 
       {!songsLoading && !reposLoading && repos.length === 0 && (

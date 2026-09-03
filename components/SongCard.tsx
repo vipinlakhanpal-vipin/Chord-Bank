@@ -58,48 +58,59 @@ export default function SongCard({ song }: { song: Song }) {
       <span className="absolute top-1 right-1 bg-white/80 dark:bg-ink/70 rounded-full p-0.5 leading-none">
         <HeartButton songId={song.id} size={13} />
       </span>
-      {user && (
-        <span className="absolute top-1 left-1 flex items-center gap-0.5">
-          <button
-            onClick={handleEdit}
-            aria-label="Edit song"
-            title="Edit"
-            className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-sm"
-          >
-            <EditIcon />
-          </button>
-          <button
-            onClick={handleDelete}
-            aria-label="Delete song"
-            title="Delete"
-            className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-red-400 to-rose-600 shadow-sm"
-          >
-            <TrashIcon />
-          </button>
-        </span>
-      )}
-      <h3 className={`font-semibold leading-snug text-[13px] sm:text-[11.5px] line-clamp-2 pr-4 ${user ? "pl-9" : ""}`}>
-        {song.title}
-      </h3>
+      <h3 className="font-semibold leading-snug text-[13px] sm:text-[11.5px] line-clamp-2 pr-4">{song.title}</h3>
       <p className="text-[11px] sm:text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
       <div className="flex items-center justify-between mt-0.5 gap-1">
-        {playableAsIs ? (
-          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal font-medium">✓</span>
-        ) : bestShift !== null ? (
-          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-saffron/10 text-saffron font-medium">
-            +{bestShift}
-          </span>
-        ) : (
-          <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-ink/40 dark:text-cream/40">
-            —
-          </span>
-        )}
         <span className="text-[10px] sm:text-[9px] text-ink/35 dark:text-cream/35">{song.year}</span>
         {song.youtubeId && (
           <span className="ml-auto">
             <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} compact />
           </span>
         )}
+      </div>
+      {/* Bottom action row: Edit bottom-left, playable badge dead center,
+          Delete bottom-right — a 3-column grid keeps the badge truly
+          centered whether or not Edit/Delete are shown (logged out). */}
+      <div className="grid grid-cols-3 items-center mt-1">
+        <span className="justify-self-start">
+          {user && (
+            <button
+              onClick={handleEdit}
+              aria-label="Edit song"
+              title="Edit"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-sm"
+            >
+              <EditIcon />
+            </button>
+          )}
+        </span>
+        <span className="justify-self-center">
+          {playableAsIs ? (
+            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white font-medium shadow-sm">
+              ✓
+            </span>
+          ) : bestShift !== null ? (
+            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-medium shadow-sm">
+              +{bestShift}
+            </span>
+          ) : (
+            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-ink/40 dark:text-cream/40">
+              —
+            </span>
+          )}
+        </span>
+        <span className="justify-self-end">
+          {user && (
+            <button
+              onClick={handleDelete}
+              aria-label="Delete song"
+              title="Delete"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-red-400 to-rose-600 shadow-sm"
+            >
+              <TrashIcon />
+            </button>
+          )}
+        </span>
       </div>
     </Link>
   );

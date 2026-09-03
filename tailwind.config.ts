@@ -13,6 +13,7 @@ const config: Config = {
         teal: "#0EA5A0",
         magenta: "#D6336C",
         indigo: "#4338CA",
+        turquoise: "#40E0D0",
         cream: "#FFF8EE",
         ink: "#1F2430",
       },

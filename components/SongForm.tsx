@@ -192,7 +192,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
         <p className="text-sm text-ink/60 dark:text-cream/60 -mt-1">
           Adding a batch of songs?{" "}
           <Link href="/songs/import" className="text-teal underline font-medium">
-            Import from Excel
+            Import from Excel, Word, or PDF
           </Link>{" "}
           instead.
         </p>

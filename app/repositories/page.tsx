@@ -49,6 +49,7 @@ export default function RepositoriesPage() {
 
   const handleCreate = async () => {
     setCreateError(null);
+    if (!newName.trim()) return setCreateError("Give the repository a name.");
     setCreating(true);
     const { error } = await createRepository(newName);
     setCreating(false);
@@ -80,10 +81,14 @@ export default function RepositoriesPage() {
               placeholder="e.g. Vipin"
               className="flex-1 rounded-xl px-3 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
             />
+            {/* Always full-bright, even while empty/disabled — a dimmed
+                pill here reads as "not there" against the dark theme,
+                which is exactly the complaint that came in. Emptiness is
+                caught on click via createError instead of a disabled look. */}
             <button
               onClick={handleCreate}
-              disabled={creating || !newName.trim()}
-              className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md disabled:opacity-50"
+              disabled={creating}
+              className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
             >
               {creating ? "Creating..." : "Create"}
             </button>

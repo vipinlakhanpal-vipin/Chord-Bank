@@ -70,7 +70,7 @@ export default function SongPage() {
             <>
               <Link
                 href={`/songs/${song.id}/edit`}
-                className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
               >
                 Edit
               </Link>

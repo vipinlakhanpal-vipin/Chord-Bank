@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Genre, GENRES, Song } from "@/lib/types";
@@ -169,6 +170,15 @@ export default function SongForm({ existing }: { existing?: Song }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {!isEdit && (
+        <p className="text-sm text-ink/60 dark:text-cream/60 -mt-1">
+          Adding a batch of songs?{" "}
+          <Link href="/songs/import" className="text-teal underline font-medium">
+            Import from Excel
+          </Link>{" "}
+          instead.
+        </p>
+      )}
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Title">
           <input

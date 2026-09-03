@@ -186,7 +186,17 @@
 //            top of an already-dark teal/cyan gradient, which all but
 //            vanished against the app's dark background. Dimmed pills now
 //            stay at a visible 65%+ opacity and use lighter gradient tones.
-export const APP_VERSION = "1.31.1";
+//   1.31.2 — Real bug fix, the actual root cause of the last one: this app's
+//            tailwind.config.ts defines "teal", "indigo", "saffron",
+//            "magenta" and "turquoise" as flat brand colors, which silently
+//            wipes out Tailwind's own numbered shade scale for those names —
+//            so any class like "from-teal-500" or "to-indigo-600" generated
+//            no CSS at all. That's why "Only playable", "All Songs", the Add
+//            Song pills, the Repositories chips, and the Devotional genre
+//            chip were rendering with a missing or partial background.
+//            Replaced every one with a real full-shade-scale color (cyan,
+//            blue, violet, etc.) that looks the same but actually renders.
+export const APP_VERSION = "1.31.2";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

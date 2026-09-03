@@ -12,7 +12,10 @@ and only shows you shifts that stay inside your six chords.
   Stored in Supabase, not in this codebase — see "Where your songs live" below.
 - **Add / Edit / Delete Song** (`app/songs/new`, `app/songs/[id]/edit`) — paste in a chart (title, singers, year,
   genres, a YouTube link, and the `[Chord]lyric` text) and it's saved straight to your `songs` table. Requires being
-  logged in; anyone with the link can still browse and play what's there.
+  logged in; anyone with the link can still browse and play what's there. Paste straight from Ultimate Guitar or a
+  similar site (chords on their own line above the lyrics) and it's auto-converted to inline `[Chord]lyric` format
+  on paste (`lib/chartImport.ts`) — already-inline text pastes through unchanged either way. You can always hand-move
+  a `[Chord]` tag afterward if the auto-placement lands on the wrong word.
 - **Chord + transpose engine** (`lib/chords.ts`) — pure logic, no dependencies, fully testable. This is the heart of
   the app: it does *not* offer generic transposition, only the shifts that land every chord in the song back onto
   A/E/Em/G/C/D.
@@ -141,8 +144,10 @@ and hand you the new build — you don't need to touch this yourself unless you 
 app/                Next.js App Router pages (songs, record, repositories, settings, login/signup)
 components/         UI building blocks (ChordLine, YouTubeEmbed, Navbar, ThemeProvider, SongCard)
 lib/chords.ts        The transpose/chord-matching engine — read this first
+lib/chartImport.ts   Converts a pasted Ultimate-Guitar-style chart (chords above lyrics) to inline format
 lib/types.ts         Song / Repository types
 lib/supabaseClient.ts Supabase client init
-data/songs.ts        Seed chord charts (5 songs) to prove the model end-to-end
+lib/useSongs.ts      Supabase-backed hooks the pages read your library through
+data/songs.ts        Empty — your songs live in Supabase, added via Add Song
 supabase/schema.sql   Full DB schema + RLS policies
 ```

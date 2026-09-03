@@ -11,11 +11,16 @@ create table if not exists songs (
   year int not null check (year >= 1950),
   language text not null default 'Hindi',
   youtube_id text,
-  chart text[] not null, -- lines of "[Chord]lyric text"
+  chart text[] not null, -- lines of "[Chord]lyric text" you paste in yourself via Add Song
+  genres text[] not null default '{}', -- from the fixed GENRES list in lib/types.ts, feeds the Genre filter
   tags text[],
   added_via text not null default 'manual' check (added_via in ('seed','manual','ai-workflow')),
   created_at timestamptz not null default now()
 );
+
+-- Migrating an existing project that already ran the schema above? Run just this
+-- one line in the SQL editor — safe to re-run, it no-ops if the column exists:
+--   alter table songs add column if not exists genres text[] not null default '{}';
 
 create table if not exists repositories (
   id uuid primary key default uuid_generate_v4(),
@@ -65,8 +70,19 @@ alter table repositories enable row level security;
 create policy "Anyone can read songs" on songs for select using (true);
 create policy "Anyone can read repositories" on repositories for select using (true);
 
--- Writing new songs/repositories should go through a service-role function
--- (e.g. the AI ingestion workflow) rather than directly from the client.
+-- This is a personal chord library: once you're logged in (the app's own
+-- email/password auth, not a public signup flow anyone stumbles into), you can
+-- add, edit, and delete your own songs straight from the Add Song / Edit Song
+-- screens — no AI ingestion pipeline, no service-role key involved. Signed-out
+-- visitors can still browse and play everything (the select policy above),
+-- they just can't change the library.
+create policy "Logged-in users can add songs" on songs for insert
+  with check (auth.role() = 'authenticated');
+create policy "Logged-in users can edit songs" on songs for update
+  using (auth.role() = 'authenticated')
+  with check (auth.role() = 'authenticated');
+create policy "Logged-in users can delete songs" on songs for delete
+  using (auth.role() = 'authenticated');
 
 -- Storage bucket for recordings (create via Dashboard > Storage, or:)
 -- insert into storage.buckets (id, name, public) values ('recordings', 'recordings', false);

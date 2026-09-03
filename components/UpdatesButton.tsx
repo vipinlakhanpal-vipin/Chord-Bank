@@ -2,21 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SONGS } from "@/data/songs";
 import { hasNewSongs, markSongsSeen } from "@/lib/updates";
+import { useSongs } from "@/lib/useSongs";
 
 // One button, used on both desktop (navbar) and mobile (bottom nav): shows a
 // red dot when songs have been added to the library since you last checked.
 export default function UpdatesButton({ size = 20, showLabel = false }: { size?: number; showLabel?: boolean }) {
   const [badge, setBadge] = useState(false);
   const router = useRouter();
+  const { songs, loading } = useSongs();
 
   useEffect(() => {
-    setBadge(hasNewSongs(SONGS.length));
-  }, []);
+    if (loading) return;
+    setBadge(hasNewSongs(songs.length));
+  }, [loading, songs.length]);
 
   const handleClick = () => {
-    markSongsSeen(SONGS.length);
+    markSongsSeen(songs.length);
     setBadge(false);
     router.push("/");
   };

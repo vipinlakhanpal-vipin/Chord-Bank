@@ -31,6 +31,24 @@ const GENRE_STYLES: Record<Genre, string> = {
   Patriotic: "from-lime-500 to-green-700",
 };
 
+// Rotating palette for the repository-picker pills below (repositories are a
+// free-form, growing list of names, not a fixed enum like Genre, so they
+// can't get their own fixed color map — each repo just gets the next color
+// in this cycle, by its position in the alphabetically-sorted list from
+// useRepositories). Mirrors the same gradient set app/repositories/page.tsx
+// uses for its repository chips, so a repository looks the same color
+// wherever it shows up. Same rules as GENRE_STYLES above: real full-shade
+// colors only, always full brightness, ring-2 for the picked state.
+const REPO_STYLES: string[] = [
+  "from-blue-500 to-violet-700",
+  "from-emerald-500 to-green-700",
+  "from-amber-500 to-orange-600",
+  "from-rose-500 to-pink-700",
+  "from-slate-500 to-slate-700",
+  "from-violet-500 to-purple-700",
+  "from-cyan-500 to-sky-700",
+];
+
 // Shared by /songs/new (create) and /songs/[id]/edit (update). This form never
 // writes lyrics on its own — it just takes whatever chart text you paste in
 // (from wherever you sourced it) and saves it to your Supabase songs table.
@@ -238,7 +256,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
       <Field
         label="Repository (optional)"
         full
-        hint={`Group this song under a name of your choosing — e.g. "Vipin" — so it shows up when you filter Home by that repository. Pick an existing one from the list, or type a new name to create it.`}
+        hint={`Group this song under a name of your choosing — e.g. "Vipin" — so it shows up when you filter Home by that repository. Tap one of your existing repositories below, or type a new name to create one.`}
       >
         <input
           value={repository}
@@ -247,11 +265,35 @@ export default function SongForm({ existing }: { existing?: Song }) {
           placeholder="e.g. Vipin"
           className={INPUT_CLASS}
         />
+        {/* The <datalist> below is a nice-to-have on desktop browsers that
+            support it, but iOS Safari never shows a datalist dropdown at
+            all — so on an iPhone that input looked like it had no way to
+            pick an existing repository. These tappable pills are the real,
+            reliable picker on every device, same full-bright style as the
+            genre pills above. */}
         <datalist id="repository-options">
           {repoNames.map((n) => (
             <option key={n} value={n} />
           ))}
         </datalist>
+        {repoNames.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {repoNames.map((n, i) => (
+              <button
+                type="button"
+                key={n}
+                onClick={() => setRepository(n)}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${
+                  REPO_STYLES[i % REPO_STYLES.length]
+                } shadow-sm transition-all ${
+                  repository.trim().toLowerCase() === n.toLowerCase() ? "ring-2 ring-white/80 shadow-md" : ""
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        )}
       </Field>
 
       <Field

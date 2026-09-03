@@ -1,116 +1,130 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Repository } from "@/lib/types";
+import { useMemo, useState } from "react";
+import { useSongs } from "@/lib/useSongs";
+import { useRepositories } from "@/lib/useRepositories";
+import { useAuthUser } from "@/lib/useAuthUser";
 
-const LANGUAGES = ["Hindi", "Punjabi", "Marathi", "Bengali", "Tamil", "Telugu", "Gujarati"];
+// Solid gradient chips, one per repository — same recipe as every other pill
+// in the app now, modeled on the "Family 7 / Friends 0 / ..." reference.
+// Cycles through a fixed palette so repositories stay visually distinct
+// without you having to assign colors yourself.
+const CHIP_GRADIENTS = [
+  "from-indigo-500 to-blue-700",
+  "from-emerald-500 to-green-700",
+  "from-amber-500 to-orange-600",
+  "from-rose-500 to-pink-700",
+  "from-slate-500 to-slate-700",
+  "from-violet-500 to-purple-700",
+  "from-teal-500 to-cyan-700",
+];
 
 export default function RepositoriesPage() {
-  const [repos, setRepos] = useState<Repository[]>([]);
-  const [language, setLanguage] = useState("Hindi");
-  const [yearFrom, setYearFrom] = useState(1970);
-  const [yearTo, setYearTo] = useState(new Date().getFullYear());
+  const { songs, loading: songsLoading } = useSongs();
+  const { names, loading: reposLoading, error, createRepository } = useRepositories();
+  const { user } = useAuthUser();
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
-  const createRepo = () => {
-    const repo: Repository = {
-      id: `${language.toLowerCase()}-${yearFrom}-${yearTo}-${Date.now()}`,
-      language,
-      yearFrom,
-      yearTo,
-      status: "pending",
-      songCount: 0,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    setRepos((prev) => [repo, ...prev]);
+  // A repository can exist with zero songs (just created) or show up purely
+  // because a song was tagged with a name nobody explicitly "created" first
+  // — union both so nothing gets lost either way.
+  const repos = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const name of names) counts.set(name, 0);
+    for (const s of songs) {
+      if (!s.repository) continue;
+      counts.set(s.repository, (counts.get(s.repository) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([name, songCount]) => ({ name, songCount }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [names, songs]);
+
+  const handleCreate = async () => {
+    setCreateError(null);
+    setCreating(true);
+    const { error } = await createRepository(newName);
+    setCreating(false);
+    if (error) return setCreateError(error);
+    setNewName("");
   };
 
   return (
     <div className="flex flex-col gap-6">
       <div className="card p-4">
-        <h1 className="text-xl font-display font-bold mb-1">Song Repositories</h1>
+        <h1 className="text-xl font-display font-bold mb-1">Repositories</h1>
         <p className="text-sm text-ink/60 dark:text-cream/60">
-          A repository groups your songs by language and year range for browsing — it&apos;s organizational only.
-          Songs themselves are added one at a time, with you pasting in the chart text yourself, from{" "}
+          A repository is just a name your songs are grouped under — e.g. your own name, or a friend&apos;s. Tap a
+          repository below to see the songs in it, or add the repository name while{" "}
           <Link href="/songs/new" className="text-teal underline">
-            Add Song
-          </Link>
-          . There&apos;s no automated pipeline that writes chords or lyrics for you — that would mean an AI
-          reproducing copyrighted song lyrics, which isn&apos;t something this app can do.
-        </p>
-      </div>
-
-      <div className="card p-4 flex flex-col gap-4">
-        <h2 className="font-semibold">Tag a language + year range</h2>
-        <div className="grid sm:grid-cols-3 gap-3">
-          <div>
-            <label className="text-sm block mb-1">Language</label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full rounded-xl px-3 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-sm block mb-1">Year from</label>
-            <input
-              type="number"
-              value={yearFrom}
-              onChange={(e) => setYearFrom(Number(e.target.value))}
-              className="w-full rounded-xl px-3 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
-            />
-          </div>
-          <div>
-            <label className="text-sm block mb-1">Year to</label>
-            <input
-              type="number"
-              value={yearTo}
-              onChange={(e) => setYearTo(Number(e.target.value))}
-              className="w-full rounded-xl px-3 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
-            />
-          </div>
-        </div>
-        <button onClick={createRepo} className="self-start px-4 py-2 rounded-xl bg-indigo text-white text-sm font-medium">
-          Create repository tag
-        </button>
-        <p className="text-xs text-ink/50 dark:text-cream/50">
-          This just creates a label to group songs under — go add the actual songs one at a time from{" "}
-          <Link href="/songs/new" className="text-teal underline">
-            Add Song
+            adding a song
           </Link>
           .
         </p>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {repos.map((r) => (
-          <div key={r.id} className="card p-4 flex items-center justify-between">
-            <div>
-              <p className="font-semibold">
-                {r.language} · {r.yearFrom}–{r.yearTo}
-              </p>
-              <p className="text-xs text-ink/50 dark:text-cream/50">
-                {r.songCount} songs · created {r.createdAt}
-              </p>
-            </div>
-            <span
-              className={`text-xs px-2 py-1 rounded-full font-medium ${
-                r.status === "complete"
-                  ? "bg-teal/10 text-teal"
-                  : r.status === "in-progress"
-                  ? "bg-saffron/10 text-saffron"
-                  : "bg-black/5 dark:bg-white/10 text-ink/50 dark:text-cream/50"
-              }`}
+      {user && (
+        <div className="card p-4 flex flex-col gap-2">
+          <h2 className="font-semibold text-sm">Create a new repository</h2>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="e.g. Vipin"
+              className="flex-1 rounded-xl px-3 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
+            />
+            <button
+              onClick={handleCreate}
+              disabled={creating || !newName.trim()}
+              className="px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md disabled:opacity-50"
             >
-              {r.status}
-            </span>
+              {creating ? "Creating..." : "Create"}
+            </button>
           </div>
+          {createError && <p className="text-sm text-red-500">{createError}</p>}
+        </div>
+      )}
+
+      {error && <p className="text-sm text-red-500">Couldn&apos;t load repositories ({error}).</p>}
+
+      {!songsLoading && !reposLoading && repos.length === 0 && (
+        <p className="text-sm text-ink/50 dark:text-cream/50">
+          No repositories yet —{" "}
+          {user ? "create one above" : "log in to create one"}, or just type a name in the Repository field next time
+          you add a song.
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-3">
+        {repos.map((r, i) => (
+          <Link
+            key={r.name}
+            href={`/?repo=${encodeURIComponent(r.name)}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-white font-semibold bg-gradient-to-br ${
+              CHIP_GRADIENTS[i % CHIP_GRADIENTS.length]
+            } shadow-md hover:opacity-90 transition-opacity`}
+          >
+            <FolderIcon />
+            {r.name}
+            <span className="text-xs font-bold bg-white/25 rounded-full px-2 py-0.5">{r.songCount}</span>
+          </Link>
         ))}
       </div>
     </div>
+  );
+}
+
+function FolderIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

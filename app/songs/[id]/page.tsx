@@ -55,11 +55,22 @@ export default function SongPage() {
         </div>
         <div className="flex items-center gap-2 shrink-0 mt-1">
           {song.youtubeId && <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} />}
+          {user === undefined && (
+            <span className="text-xs text-ink/40 dark:text-cream/40">Checking login...</span>
+          )}
+          {user === null && (
+            <Link
+              href="/login"
+              className="text-xs font-semibold text-teal underline"
+            >
+              Log in to edit or delete
+            </Link>
+          )}
           {user && (
             <>
               <Link
                 href={`/songs/${song.id}/edit`}
-                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/20"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-teal-500 to-cyan-700 shadow-md"
               >
                 Edit
               </Link>
@@ -67,14 +78,14 @@ export default function SongPage() {
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-red-500 text-white disabled:opacity-50"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-red-500 to-rose-700 shadow-md disabled:opacity-50"
                 >
                   {deleting ? "Deleting..." : "Confirm delete"}
                 </button>
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full border border-red-500/30 text-red-500"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br from-red-400 to-rose-600 shadow-sm opacity-80 hover:opacity-100"
                 >
                   Delete
                 </button>

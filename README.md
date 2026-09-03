@@ -1,6 +1,6 @@
 # Chord Bank — Bollywood Chords for the 6 Chords You Know
 
-**Current version: v1.26** (see [Versioning](#versioning) below for how this number moves)
+**Current version: v1.28** (see [Versioning](#versioning) below for how this number moves)
 
 A practice app for Hindi/Bollywood songs (1970 onward), built entirely around six chords: **A, E, Em, G, C, D**.
 Every song is checked against that set; if it doesn't fit as-is, the app finds a capo/key-shift that makes it fit,
@@ -9,24 +9,37 @@ and only shows you shifts that stay inside your six chords.
 ## What's actually in this scaffold
 
 - **Song library** grouped by singer, searchable, tagged "playable as-is" / "playable with a shift" / "needs other chords."
+  Stored in Supabase, not in this codebase — see "Where your songs live" below.
+- **Add / Edit / Delete Song** (`app/songs/new`, `app/songs/[id]/edit`) — paste in a chart (title, singers, year,
+  genres, a YouTube link, and the `[Chord]lyric` text) and it's saved straight to your `songs` table. Requires being
+  logged in; anyone with the link can still browse and play what's there.
 - **Chord + transpose engine** (`lib/chords.ts`) — pure logic, no dependencies, fully testable. This is the heart of
   the app: it does *not* offer generic transposition, only the shifts that land every chord in the song back onto
   A/E/Em/G/C/D.
 - **Chord charts as chords-over-lyrics text** (like Ultimate Guitar) — no song audio is stored or downloaded anywhere.
-  That's a deliberate legal boundary: distributing copyrighted Bollywood recordings isn't something this app does,
-  under any workflow. Chord/lyric annotation for personal practice is the standard, broadly-accepted format chord
-  sites have used for decades.
+  Unlike Ultimate Guitar, this app has no publisher licensing deal for lyric content, so it doesn't generate, source,
+  or ship any lyrics itself — every chart comes from you pasting in text you already have.
 - **In-app YouTube embed** per song, so you can hear the original while practicing — this uses YouTube's own official
   embed player (a linked iframe), not a downloaded copy.
 - **Recording studio** (`app/record`) — real `getUserMedia` + `MediaRecorder` implementation. Detects any mic
   (built-in or external/USB, on Mac or phone), lets you toggle echo cancellation / noise suppression / auto-gain
   (these run through the OS/browser audio stack, which is the realistic ceiling for in-browser "noise cancellation" —
   see note below), shows a live level meter, and lets you play back and download recordings.
-- **Repositories** (`app/repositories`) — the UI for "give me a language + year range and build a chord repo for it."
-  Right now it queues a job; wiring it to a real ingestion pipeline is the AI workflow section below.
+- **Repositories** (`app/repositories`) — organizational tags for grouping songs by language/year range. Purely a
+  label; the actual songs still go in one at a time through Add Song.
 - **Settings** — light/dark theme (persisted), profile display name, sign out.
 - **Auth** — Supabase email/password (`app/login`, `app/signup`). No social login, no magic links, kept simple as requested.
 - **Supabase schema** (`supabase/schema.sql`) — songs, repositories, recordings, profiles, with row-level security.
+
+## Where your songs live
+
+The library used to be 35 hardcoded demo songs shipped in this repo's source. Those are gone — full commercial song
+lyrics aren't something this app (or any AI-assisted tool without a publisher licensing deal) can generate, source,
+or ship on your behalf, regardless of how the request is framed. What's left is genuinely yours to fill in: log in,
+hit **+ Add Song**, and paste in the chart text you've sourced yourself. It's saved to your own Supabase `songs`
+table and runs through the same transpose engine either way. If you're setting this up on a project that already
+ran the old schema, run the one-line migration comment at the top of `supabase/schema.sql` to add the new `genres`
+column, plus the new insert/update/delete policies further down the same file.
 
 ## Why this stack (Next.js + Vercel + Supabase + GitHub)
 
@@ -61,17 +74,11 @@ vocal mic, if you use an interface); waveform trim/edit before saving.
 recording, lock-screen controls, and tighter mic control than a mobile browser allows. Most of `lib/chords.ts` and
 the Supabase schema carry over unchanged.
 
-**Phase 4 (AI ingestion workflow for repositories)**: a scheduled job (Supabase Edge Function or a small script) that,
-for a queued repository (language + year range):
-1. Searches for candidate song titles/singers in that range (metadata only — title, artist, year, movie).
-2. Looks up or generates a chord-over-lyrics chart for each (community chord databases, or careful AI-assisted
-   transcription from listening — chords only, never lyrics-at-scale reproduction of copyrighted lyric sheets in bulk,
-   and always human-reviewed before publishing).
-3. Runs each chart through `findPlayableTranspositions` — keeps it if a valid shift exists, flags it otherwise.
-4. Inserts into `songs` via a service-role key (never exposed to the browser), sets `added_via = 'ai-workflow'`.
-5. Marks the repository `complete` once the batch is done.
-This is the part that should NOT run with your public anon key — it needs a server-side secret and ideally a human
-approval step before charts go live, since a wrong chord is worse than no chord when you're relying on it mid-song.
+**Phase 4 (dropped)**: earlier drafts of this README described an AI ingestion workflow that would automatically
+find songs and generate their chord-over-lyrics charts. That's not something this app does — it would mean an AI
+reproducing full copyrighted song lyrics at scale, which isn't possible to do responsibly regardless of sourcing or
+review steps. Add Song (above) is the real, permanent way songs get into your library: you paste in what you've
+sourced, the app never authors lyric content on its own.
 
 ## Other feature ideas worth adding later
 

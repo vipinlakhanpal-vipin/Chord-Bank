@@ -82,24 +82,15 @@ export default function ImportSongsPage() {
       return;
     }
     try {
-      console.log("[import-debug] reading file", kind);
       const buffer = await file.arrayBuffer();
-      console.log("[import-debug] got buffer", buffer.byteLength);
       let parsed;
       if (kind === "xlsx") {
         parsed = parseSongsWorkbook(buffer);
       } else if (kind === "docx") {
-        console.log("[import-debug] calling extractDocxText");
-        const text = await extractDocxText(buffer);
-        console.log("[import-debug] extractDocxText done", text.length);
-        parsed = parseSongsFromText(text);
+        parsed = parseSongsFromText(await extractDocxText(buffer));
       } else {
-        console.log("[import-debug] calling extractPdfText");
-        const text = await extractPdfText(buffer);
-        console.log("[import-debug] extractPdfText done", text.length);
-        parsed = parseSongsFromText(text);
+        parsed = parseSongsFromText(await extractPdfText(buffer));
       }
-      console.log("[import-debug] parsed rows", parsed.length);
       if (parsed.length === 0) {
         setRows([]);
         setParseError(

@@ -70,8 +70,12 @@ export default function SongCard({ song }: { song: Song }) {
       </div>
       {/* Bottom action row: Edit bottom-left, playable badge dead center,
           Delete bottom-right — a 3-column grid keeps the badge truly
-          centered whether or not Edit/Delete are shown (logged out). */}
-      <div className="grid grid-cols-3 items-center mt-1">
+          centered whether or not Edit/Delete are shown (logged out).
+          mt-auto (on a flex-col parent, stretched to equal row height by
+          the CSS grid above) eats all the leftover space above this row,
+          so it always sits flush on the tile's bottom edge instead of
+          trailing right under a short vs. long title/singer/genre block. */}
+      <div className="grid grid-cols-3 items-center mt-auto pt-1">
         <span className="justify-self-start">
           {user && (
             <button

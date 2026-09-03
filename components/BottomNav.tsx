@@ -5,12 +5,10 @@ import { usePathname } from "next/navigation";
 import AriaChat from "./AriaChat";
 import UpdatesButton from "./UpdatesButton";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
-import { useAuthUser } from "@/lib/useAuthUser";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { available: updatePending, acknowledge } = useUpdateAvailable();
-  const { user } = useAuthUser();
 
   const isActive = (href: string) => pathname === href;
 
@@ -24,16 +22,14 @@ export default function BottomNav() {
       className="sm:hidden fixed bottom-0 inset-x-0 z-40 transform-gpu bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-7 items-end px-0.5 pt-1.5 pb-1.5">
+      <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
         {/* Home was dropped from here once (the logo up top still linked to
             it), but that made the song list/filters hard to find on mobile —
-            it's back as its own tab, with Add Song right next to it. */}
+            it's back as its own tab. Add Song used to sit right next to it,
+            but that duplicated the "+ Add Song" button already on the Home
+            page's top right, so it was dropped from here. */}
         <NavItem href="/" label="Home" active={isActive("/")}>
           <HomeIcon />
-        </NavItem>
-
-        <NavItem href={user ? "/songs/new" : "/login"} label="Add Song" active={isActive("/songs/new")}>
-          <AddIcon />
         </NavItem>
 
         <div className="flex flex-col items-center gap-1 py-1">
@@ -120,14 +116,6 @@ function HomeIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function AddIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

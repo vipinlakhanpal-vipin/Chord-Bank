@@ -297,17 +297,21 @@ function EmptyState({
 // unselected ones rather than switching color families. Full literal class
 // strings — Tailwind's build-time scanner needs the exact "from-amber-500
 // to-orange-600" token to appear in source, so no string interpolation here.
+// Every end-stop stays at -600 (not -700/-800) and the dimmed state never
+// drops below ~65% opacity — a darker gradient faded much past that reads as
+// nearly invisible against this app's dark background (teal-to-cyan-700 at
+// 50% opacity was the culprit that made "Only playable" disappear).
 const FILTER_TINTS = {
   saffron: "from-amber-500 to-orange-600",
-  indigo: "from-indigo-500 to-violet-700",
-  magenta: "from-fuchsia-500 to-pink-700",
-  teal: "from-teal-500 to-cyan-700",
-  rose: "from-rose-500 to-red-700",
+  indigo: "from-indigo-500 to-violet-600",
+  magenta: "from-fuchsia-500 to-pink-600",
+  teal: "from-teal-400 to-cyan-600",
+  rose: "from-rose-500 to-red-600",
 } as const;
 
 function pillClass(gradient: string, active: boolean) {
   return `text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${gradient} transition-all ${
-    active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-50 hover:opacity-75"
+    active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-65 hover:opacity-90"
   }`;
 }
 
@@ -332,7 +336,7 @@ function FilterSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={`appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-full cursor-pointer outline-none text-white bg-gradient-to-br ${gradient} transition-all ${
-          active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-50 hover:opacity-75"
+          active ? "opacity-100 ring-2 ring-white/80 shadow-md" : "opacity-65 hover:opacity-90"
         }`}
       >
         <option value="all">{label}: All</option>

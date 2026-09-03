@@ -20,6 +20,7 @@ interface SongRow {
   genres: string[] | null;
   tags: string[] | null;
   added_via: string;
+  repository: string | null;
 }
 
 function isGenre(value: string): value is Genre {
@@ -39,6 +40,7 @@ function rowToSong(row: SongRow): Song {
     genres: (row.genres ?? []).filter(isGenre),
     tags: row.tags ?? undefined,
     addedVia: (row.added_via as Song["addedVia"]) ?? "manual",
+    repository: row.repository ?? undefined,
   };
 }
 

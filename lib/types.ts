@@ -28,14 +28,16 @@ export interface Song {
   genres: Genre[];
   tags?: string[];
   addedVia: "seed" | "manual" | "ai-workflow";
+  // A free-text folder you name yourself — e.g. "Vipin" — to group songs you
+  // added under your own name. Optional: a song with no repository just
+  // shows up everywhere, unfiltered.
+  repository?: string;
 }
 
+// A repository is just a name your songs are tagged with (Song.repository) —
+// this is the aggregated view for the Repositories page: the name plus how
+// many songs currently carry it. Not a separate record per song.
 export interface Repository {
-  id: string;
-  language: string;
-  yearFrom: number;
-  yearTo: number;
-  status: "pending" | "in-progress" | "complete";
+  name: string;
   songCount: number;
-  createdAt: string;
 }

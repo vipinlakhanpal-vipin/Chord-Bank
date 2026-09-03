@@ -155,7 +155,33 @@
 //           already goes home) — that's the button you'll use constantly.
 //           "Chord Bank" brand text recolored to turquoise. Home heading
 //           renamed to "Welcome to Vipin's Chords Bank".
-export const APP_VERSION = "1.29.0";
+//   1.30 — Every pill-shaped tab in the app now uses the solid gradient-fill
+//           look from your reference image (colored background + white text,
+//           no border) instead of the washed-out tinted-outline style:
+//           Genre tags on Add Song, the Year/Singer/Genre filter pills and
+//           "Only playable" / "By Singer"/"All Songs" toggles on Home, the
+//           Add Song button (navbar + Home card), the active Record/
+//           Repositories/Favourite/Settings tab, and the mobile Rec/Repo
+//           pills. Unselected pills stay dimmed instead of switching to an
+//           outline, so every tab always reads as a real filled color.
+//   1.31 — Real repositories: Add Song now has a Repository field (type a
+//           name like "Vipin" — pick an existing one or create a new one on
+//           the fly), Home gets a Repository filter pill next to Year/
+//           Singer/Genre, and the Repositories page shows real gradient
+//           chips per repository with a live song count, linking straight
+//           to Home pre-filtered to that repository. Also: Home was only
+//           reachable via the logo after the bottom nav's Home button was
+//           replaced with Add Song — a dedicated Home tab is back on mobile,
+//           right next to Add Song, so the song list + filters are never
+//           more than one tap away. Edit/Delete on a song page now show as
+//           solid color pills instead of faint outlines, and explicitly
+//           say "Log in to edit or delete" when you're signed out, instead
+//           of just silently not showing up. Also: the top and bottom nav
+//           bars could visibly jump mid-scroll on iOS Safari (the address
+//           bar animating away resizes the viewport, and a plain fixed
+//           element can re-settle against that mid-frame) — both are now
+//           pinned to their own GPU layer so they stay put while you scroll.
+export const APP_VERSION = "1.31.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

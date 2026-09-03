@@ -124,7 +124,21 @@
 //           press feedback (a quick scale-down) to the mobile bottom nav
 //           buttons so switching tabs feels immediate even while the next
 //           page's content loads in.
-export const APP_VERSION = "1.27.0";
+//   1.28 — Big one: removed all 35 demo songs from the codebase. Several had
+//           lyrics cross-contaminated between different songs (verses from
+//           the wrong song entirely) from being recalled from memory instead
+//           of sourced — a real accuracy failure, and on top of that, full
+//           commercial song lyrics aren't something this app can generate or
+//           ship on its own regardless of accuracy. In their place: a real
+//           Add Song / Edit Song / Delete Song flow (login required to write,
+//           open to browse) backed by your own Supabase `songs` table — you
+//           paste in chart text you've sourced yourself, the app never
+//           authors lyric content. Home, Favourites, the song detail page,
+//           and the Updates bell all now read live from Supabase instead of
+//           a hardcoded file. Repositories page copy corrected to stop
+//           promising an AI ingestion pipeline that was never going to be
+//           buildable. Needs a one-line schema migration — see README.
+export const APP_VERSION = "1.28.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

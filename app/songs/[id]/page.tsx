@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabaseClient";
 import ChordLine from "@/components/ChordLine";
 import YouTubeMiniPlayer from "@/components/YouTubeMiniPlayer";
 import HeartButton from "@/components/HeartButton";
+import AutoScroll from "@/components/AutoScroll";
 import {
   extractChordsFromChart,
   findPlayableTranspositions,
@@ -130,6 +131,12 @@ export default function SongPage() {
           <ChordLine key={i} line={line} />
         ))}
       </div>
+
+      {/* Extra bottom padding so the floating Auto-scroll bar never sits on
+          top of the last couple of chart lines. */}
+      <div className="h-20" aria-hidden="true" />
+
+      <AutoScroll />
     </div>
   );
 }

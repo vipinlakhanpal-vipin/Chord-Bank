@@ -144,7 +144,18 @@
 //           manual reformatting needed before it's playable/transposable.
 //           Already-inline text pastes through unchanged, and you can still
 //           hand-move any [Chord] tag afterward if the placement is off.
-export const APP_VERSION = "1.28.0";
+//   1.29 — Real bug fix: mouse wheel scrolling could go dead on desktop
+//           browsers — html and body both set overflow-x:hidden, which on
+//           some browsers makes <html> its own scroll container instead of
+//           the normal viewport scroll; overflow-x is now set on body only.
+//           Genre tags (Add Song) and the Rec/Repo pills each get their own
+//           solid color now instead of one washed-out tint repeated. Home's
+//           "+ Add Song" spot on both the desktop navbar and the mobile
+//           bottom bar now replaces the redundant Home icon (the logo/title
+//           already goes home) — that's the button you'll use constantly.
+//           "Chord Bank" brand text recolored to turquoise. Home heading
+//           renamed to "Welcome to Vipin's Chords Bank".
+export const APP_VERSION = "1.29.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

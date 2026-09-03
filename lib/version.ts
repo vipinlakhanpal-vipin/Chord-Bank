@@ -239,7 +239,16 @@
 //           reproduces lyrics on its own — it only reshapes chart text you
 //           already sourced yourself into rows in your own spreadsheet.
 //           PDF and Word import are next.
-export const APP_VERSION = "1.34.0";
+//   1.35 — Real bug fix: the Repository field on Add/Edit Song only ever
+//           showed your existing repositories through a native HTML
+//           datalist dropdown — which iOS Safari has never implemented any
+//           visible UI for, so on iPhone there was no way to see or pick a
+//           repository you'd already created, only to type one blind. Every
+//           existing repository (e.g. "Vipin", "Vipin-Devotional") now also
+//           shows as a tappable colored pill right under the field, on both
+//           Add and Edit Song, on every device — tap one to tag the song to
+//           it, same full-bright-pill style as the Genre tags above it.
+export const APP_VERSION = "1.35.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

@@ -164,12 +164,12 @@ function HomePageInner() {
         <button
           onClick={() => setOnlyPlayable((v) => !v)}
           className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-            onlyPlayable ? "bg-teal text-white border-teal" : "bg-teal/10 border-teal/30 text-teal"
+            onlyPlayable ? "bg-teal text-white border-teal" : "bg-teal/25 border-teal/70 text-teal"
           }`}
         >
           Only playable
         </button>
-        <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/5 dark:bg-white/10 text-ink/60 dark:text-cream/60">
+        <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/10 dark:bg-white/15 text-ink/70 dark:text-cream/80">
           <span className="text-teal dark:text-saffron font-bold">{SONGS.length}</span> song
           {SONGS.length === 1 ? "" : "s"} in the library
         </span>
@@ -283,24 +283,24 @@ function EmptyState({
 // no styles at all).
 const FILTER_TINTS = {
   saffron: {
-    inactive: "border-saffron/30 bg-saffron/10 text-saffron",
+    inactive: "border-saffron/70 bg-saffron/25 text-saffron dark:text-saffron",
     active: "border-saffron bg-saffron text-white",
-    chevronInactive: "text-saffron/70",
+    chevronInactive: "text-saffron/90",
   },
   indigo: {
-    inactive: "border-indigo/30 bg-indigo/10 text-indigo",
+    inactive: "border-indigo/70 bg-indigo/25 text-indigo dark:text-indigo",
     active: "border-indigo bg-indigo text-white",
-    chevronInactive: "text-indigo/70",
+    chevronInactive: "text-indigo/90",
   },
   magenta: {
-    inactive: "border-magenta/30 bg-magenta/10 text-magenta",
+    inactive: "border-magenta/70 bg-magenta/25 text-magenta dark:text-magenta",
     active: "border-magenta bg-magenta text-white",
-    chevronInactive: "text-magenta/70",
+    chevronInactive: "text-magenta/90",
   },
   teal: {
-    inactive: "border-teal/30 bg-teal/10 text-teal",
+    inactive: "border-teal/70 bg-teal/25 text-teal dark:text-teal",
     active: "border-teal bg-teal text-white",
-    chevronInactive: "text-teal/70",
+    chevronInactive: "text-teal/90",
   },
 } as const;
 

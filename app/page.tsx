@@ -108,7 +108,7 @@ function HomePageInner() {
       <div className="card p-4 flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-display font-bold mb-1">
-            Welcome to <span className="text-turquoise">Vipin&apos;s Chords Bank</span>
+            <span className="text-turquoise">Vipin Chord Bank</span>
           </h1>
           <p className="text-sm text-ink/60 dark:text-cream/60">
             Your chord library — every song filtered and transposed to fit the chords you play.

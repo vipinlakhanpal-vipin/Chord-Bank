@@ -53,3 +53,31 @@ textarea {
 .card {
   @apply rounded-2xl shadow-sm border border-black/5 dark:border-white/10 bg-white dark:bg-white/5;
 }
+
+/* "New Update Available" flash next to the Refresh button (Navbar, desktop)
+   and above the Refresh icon (BottomNav, mobile) — a plain Tailwind
+   animate-pulse only fades between 100%/50% opacity, which reads as a
+   gentle glow rather than something demanding a tap, so this dips much
+   further (down to near-transparent) for an actual on/off flash. Bright
+   blue is a real full-shade Tailwind color (not one of this app's
+   overridden brand names like teal/saffron/magenta), so it renders as
+   intended in both themes without the flat-hex-override bug noted
+   elsewhere in this file's history. */
+@keyframes flash-blue {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.update-flash {
+  color: #2563eb; /* blue-600 */
+  animation: flash-blue 1s ease-in-out infinite;
+}
+
+html.dark .update-flash {
+  color: #60a5fa; /* blue-400 — lighter so it still pops on a dark background */
+}

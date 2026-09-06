@@ -292,7 +292,13 @@
 //           have a Delete button next to Download, since until now the
 //           only way to clear one out of the list was to refresh the whole
 //           page and lose all of them.
-export const APP_VERSION = "1.41.0";
+//   1.42 — The Refresh button's red dot (meaning a new deploy is live) is
+//           easy to miss, so a flashing bright-blue "New Update Available"
+//           callout now spells it out right next to it — beside the icon
+//           in the desktop navbar, and as a banner above the icon row in
+//           the mobile bottom nav — only shown while an update is actually
+//           pending.
+export const APP_VERSION = "1.42.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

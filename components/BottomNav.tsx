@@ -22,6 +22,15 @@ export default function BottomNav() {
       className="sm:hidden fixed bottom-0 inset-x-0 z-40 transform-gpu bg-white/95 dark:bg-ink/95 backdrop-blur border-t border-black/5 dark:border-white/10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
+      {/* Same flashing "New Update Available" callout as the desktop navbar,
+          spelling out what the Refresh icon's red dot means — sits inside
+          this same fixed bar, above the icon row, so the safe-area padding
+          below still only ever applies once, to the icons themselves. */}
+      {updatePending && (
+        <div className="text-center text-[11px] font-extrabold update-flash py-1 bg-blue-50 dark:bg-blue-950/40 border-b border-blue-200/60 dark:border-blue-800/60">
+          New Update Available — tap Refresh
+        </div>
+      )}
       <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
         {/* Home was dropped from here once (the logo up top still linked to
             it), but that made the song list/filters hard to find on mobile —

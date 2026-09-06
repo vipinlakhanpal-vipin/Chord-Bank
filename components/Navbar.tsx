@@ -54,6 +54,15 @@ export default function Navbar() {
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-cream dark:border-ink" />
               )}
             </button>
+            {/* Red dot on the Refresh button is easy to miss (small, easy to
+                read as decoration) — this spells out what it means, right
+                next to it, so it's obvious there's actually something to
+                click. Only shown once a new deploy is actually pending. */}
+            {updatePending && (
+              <span className="hidden sm:inline text-xs font-extrabold update-flash whitespace-nowrap shrink-0">
+                New Update Available
+              </span>
+            )}
             <span className="hidden sm:inline-flex shrink-0">
               <UpdatesButton size={15} />
             </span>

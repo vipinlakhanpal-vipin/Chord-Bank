@@ -59,6 +59,17 @@ function HomePageInner() {
     () => Array.from(new Set(SONGS.flatMap((s) => s.singers))).sort((a, b) => a.localeCompare(b)),
     [SONGS]
   );
+  // How many songs each singer appears on, across the whole library (not
+  // just whatever's currently filtered) — same "total count on the tile"
+  // idea as the Repositories page's chips, so a tile's number doesn't jump
+  // around just because you've also got a Year or Genre filter active.
+  const singerCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of SONGS) {
+      for (const name of s.singers) counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return counts;
+  }, [SONGS]);
   const repositories = useMemo(
     () =>
       Array.from(new Set(SONGS.map((s) => s.repository).filter((r): r is string => !!r))).sort((a, b) =>
@@ -146,6 +157,38 @@ function HomePageInner() {
           </button>
         </div>
       </div>
+
+      {/* One tile per singer, auto-created from whatever names show up in the
+          Singers field on Add/Edit Song — add a song under a new singer and
+          a new tile appears here on its own, no code change needed. Tapping
+          a tile is just a shortcut for picking that name in the Singer
+          filter below (same `singer` state), switched to the flat "All
+          Songs" view so their songs show right away instead of buried in a
+          single one-singer group. Tap the same tile again to clear it. */}
+      {singers.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-ink/40 dark:text-cream/40">Singers</h2>
+          <div className="flex flex-wrap gap-2">
+            {singers.map((name, i) => {
+              const active = singer === name;
+              return (
+                <button
+                  key={name}
+                  onClick={() => {
+                    setSinger(active ? "all" : name);
+                    setViewMode("all");
+                  }}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${
+                    SINGER_STYLES[i % SINGER_STYLES.length]
+                  } shadow-sm transition-all ${active ? "ring-2 ring-white/80 shadow-md" : ""}`}
+                >
+                  {name} <span className="opacity-80 font-semibold">· {singerCounts.get(name) ?? 0}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filters — each gets its own tint so the row reads at a glance, matching
           the colored badges already used on song tiles (bg-<color>/10, solid
@@ -312,6 +355,26 @@ const FILTER_TINTS = {
   teal: "from-cyan-500 to-sky-700",
   rose: "from-rose-500 to-red-600",
 } as const;
+
+// Rotating palette for the Singers tile row — singers are a free-form,
+// growing list (not a fixed enum like Genre), so each one just gets the
+// next color in this cycle by its position in the alphabetically-sorted
+// `singers` list. Same rules as every other pill in this app: real
+// full-shade-scale colors only (never "teal-500"/"indigo-500"/etc. — see
+// the note above FILTER_TINTS), always full brightness, ring-2 for the
+// selected one.
+const SINGER_STYLES: string[] = [
+  "from-blue-500 to-violet-700",
+  "from-emerald-500 to-green-700",
+  "from-amber-500 to-orange-600",
+  "from-rose-500 to-pink-700",
+  "from-cyan-500 to-sky-700",
+  "from-fuchsia-500 to-purple-700",
+  "from-lime-600 to-emerald-700",
+  "from-red-500 to-rose-700",
+  "from-indigo-500 to-blue-800",
+  "from-orange-500 to-red-600",
+];
 
 function pillClass(gradient: string, active: boolean) {
   return `text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${gradient} shadow-sm transition-all ${

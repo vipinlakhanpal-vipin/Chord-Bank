@@ -298,7 +298,14 @@
 //           in the desktop navbar, and as a banner above the icon row in
 //           the mobile bottom nav — only shown while an update is actually
 //           pending.
-export const APP_VERSION = "1.42.0";
+//   1.43 — Home now shows a "Singers" row: one colored, clickable tile per
+//           singer name, auto-created from whatever's in each song's
+//           Singers field — add a song under a singer that isn't a tile yet
+//           and one appears on its own, no other change needed. Tapping a
+//           tile filters the library down to that singer's songs (tap again
+//           to clear); existing Singer dropdown filter still works the same
+//           way alongside it.
+export const APP_VERSION = "1.43.0";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

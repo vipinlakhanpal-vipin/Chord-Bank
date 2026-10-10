@@ -28,14 +28,16 @@ export interface Song {
   genres: Genre[];
   tags?: string[];
   addedVia: "seed" | "manual" | "ai-workflow";
-  // A free-text folder you name yourself — e.g. "Vipin" — to group songs you
-  // added under your own name. Optional: a song with no repository just
-  // shows up everywhere, unfiltered.
-  repository?: string;
+  // Free-text folders you name yourself — e.g. "Vipin", "Guitar Favourite",
+  // "Amit Kumar" — to group songs under. A song can belong to more than one
+  // at once (the same song can be both your own favourite AND filed under a
+  // singer's name), or none, in which case it just shows up everywhere,
+  // unfiltered. Always an array, defaults to empty rather than undefined.
+  repositories: string[];
 }
 
-// A repository is just a name your songs are tagged with (Song.repository) —
-// this is the aggregated view for the Repositories page: the name plus how
+// A repository is just a name your songs are tagged with (Song.repositories)
+// — this is the aggregated view for the Repositories page: the name plus how
 // many songs currently carry it. Not a separate record per song.
 export interface Repository {
   name: string;

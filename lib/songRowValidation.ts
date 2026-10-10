@@ -19,7 +19,9 @@ export interface ParsedSongRow {
   genres: Genre[];
   unknownGenres: string[];
   youtubeId: string | null;
-  repository: string | null;
+  // Comma-separated in the source file — "Vipin, Guitar Favourite" becomes
+  // two repositories, same split style as singers/genres above.
+  repositories: string[];
   chart: string[];
   errors: string[];
 }
@@ -75,7 +77,10 @@ export function buildParsedSongRow(rowNumber: number, raw: RawSongFields): Parse
   const youtubeRawTrimmed = raw.youtubeRaw.trim();
   const youtubeId = youtubeRawTrimmed ? extractYoutubeId(youtubeRawTrimmed) || null : null;
 
-  const repository = raw.repository.trim() || null;
+  const repositories = raw.repository
+    .split(",")
+    .map((r) => r.trim())
+    .filter(Boolean);
 
   const chartRawTrimmed = raw.chartRaw.trim();
   const chartConverted = chartRawTrimmed
@@ -93,7 +98,7 @@ export function buildParsedSongRow(rowNumber: number, raw: RawSongFields): Parse
     genres,
     unknownGenres,
     youtubeId,
-    repository,
+    repositories,
     chart,
     errors,
   };

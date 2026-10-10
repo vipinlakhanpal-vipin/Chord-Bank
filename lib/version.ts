@@ -348,14 +348,39 @@
 //           shift you're on now tells you the matching capo fret (if any)
 //           that would make those same easy shapes sound exactly like the
 //           original recording's key, not just a shifted-up version of it.
-export const APP_VERSION = "1.46.0";
+//   1.47 — Added a .gitignore to the repo (build-artifact noise was getting
+//           flagged as "uncommitted changes" in the dev workflow — not
+//           something you'd see in the app itself).
+//   1.48 — Songs can now belong to more than one repository at once (e.g.
+//           both "Guitar Favourite" and a singer's name) — the Add/Edit Song
+//           repository field is a multi-select now instead of one text box.
+//           Repositories themselves can now be renamed and deleted from the
+//           Repositories page (you'd asked for both before) — renaming or
+//           deleting updates every song tagged with that name too, not just
+//           the repository's own entry. Repositories moved out of the main
+//           nav and into Settings, since it's library configuration rather
+//           than something you open every session. The Favourite tab was
+//           dropped entirely — favourites are now a filter on Home ("♥
+//           Favourites", next to "Only playable") instead of a separate
+//           page, since that's genuinely just filtering the same song list.
+//           "By Singer"/"All Songs" moved out of the search row and into the
+//           filters row, next to the other 6 filters, since it's a filter
+//           too. Fixed a real gap in the "what's new" banner: it only ever
+//           fired for a tab that was already open when a new version
+//           deployed — coming back after being away (closed tab, reopened
+//           later) landed you straight on the new version with no banner at
+//           all, which is exactly what happened going from v1.44 to v1.46.
+//           It now also compares against the last version you saw, stored
+//           on your device, and flashes the banner on that kind of "catching
+//           up" load too.
+export const APP_VERSION = "1.48.0";
 
 // One-line, user-facing summary of the CURRENT version, shown in the new
 // "What's new" update banner (components/UpdateToast.tsx). Keep this short
 // and in plain language — it's the thing you actually read, not the full
 // changelog comment above. Update this alongside APP_VERSION every time.
 export const LATEST_SUMMARY =
-  "Chord controls rebuilt: Original tab always gets you back to your as-entered chords, Transpose now steps with +/- buttons, and it tells you the matching capo fret for the original key.";
+  "Songs can now belong to multiple repositories, repositories can be renamed/deleted, Repositories moved under Settings, Favourite is now a Home filter, and the update banner now catches you up even after being away.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

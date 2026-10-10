@@ -142,7 +142,12 @@ export function parseSongsWorkbook(buffer: ArrayBuffer): ParsedSongRow[] {
     const youtubeRaw = get(row, "youtube");
     const youtubeId = youtubeRaw ? extractYoutubeId(youtubeRaw) || null : null;
 
-    const repository = get(row, "repository") || null;
+    // Comma-separated in the spreadsheet cell — "Vipin, Guitar Favourite"
+    // becomes two repositories, same split style as Singers/Genres above.
+    const repositories = get(row, "repository")
+      .split(",")
+      .map((r) => r.trim())
+      .filter(Boolean);
 
     const chartRaw = get(row, "chart");
     const chartConverted = chartRaw ? convertUgChartToInline(chartRaw.replace(/\r\n/g, "\n").replace(/\r/g, "\n")) : "";
@@ -158,7 +163,7 @@ export function parseSongsWorkbook(buffer: ArrayBuffer): ParsedSongRow[] {
       genres,
       unknownGenres,
       youtubeId,
-      repository,
+      repositories,
       chart,
       errors,
     });

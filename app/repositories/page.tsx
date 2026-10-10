@@ -26,21 +26,36 @@ const CHIP_GRADIENTS = [
 
 export default function RepositoriesPage() {
   const { songs, loading: songsLoading } = useSongs();
-  const { names, loading: reposLoading, error, createRepository } = useRepositories();
+  const { names, loading: reposLoading, error, createRepository, renameRepository, deleteRepository } =
+    useRepositories();
   const { user } = useAuthUser();
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  // Which repository's chip is currently showing its rename input, and what's
+  // typed into it — only one at a time, keyed by the ORIGINAL name so the
+  // input stays matched to the right chip even while you're mid-edit.
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renameSaving, setRenameSaving] = useState(false);
+  const [renameError, setRenameError] = useState<string | null>(null);
+  // Two-tap delete, same pattern as the song-delete button elsewhere in the
+  // app — first tap arms it (turns red, asks to confirm), second tap within
+  // the same chip actually deletes. Tapping any other chip's edit/delete, or
+  // just moving on, de-arms it.
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // A repository can exist with zero songs (just created) or show up purely
   // because a song was tagged with a name nobody explicitly "created" first
-  // — union both so nothing gets lost either way.
+  // — union both so nothing gets lost either way. A song can now carry more
+  // than one repository, so this counts it once per repository it's in.
   const repos = useMemo(() => {
     const counts = new Map<string, number>();
     for (const name of names) counts.set(name, 0);
     for (const s of songs) {
-      if (!s.repository) continue;
-      counts.set(s.repository, (counts.get(s.repository) ?? 0) + 1);
+      for (const name of s.repositories) counts.set(name, (counts.get(name) ?? 0) + 1);
     }
     return Array.from(counts.entries())
       .map(([name, songCount]) => ({ name, songCount }))
@@ -55,6 +70,42 @@ export default function RepositoriesPage() {
     setCreating(false);
     if (error) return setCreateError(error);
     setNewName("");
+  };
+
+  const startRename = (name: string) => {
+    setRenaming(name);
+    setRenameValue(name);
+    setRenameError(null);
+  };
+
+  const cancelRename = () => {
+    setRenaming(null);
+    setRenameValue("");
+    setRenameError(null);
+  };
+
+  const handleRename = async (oldName: string) => {
+    setRenameError(null);
+    if (!renameValue.trim()) return setRenameError("Give the repository a name.");
+    setRenameSaving(true);
+    const { error } = await renameRepository(oldName, renameValue);
+    setRenameSaving(false);
+    if (error) return setRenameError(error);
+    cancelRename();
+  };
+
+  const handleDelete = async (name: string) => {
+    if (confirmingDelete !== name) {
+      setConfirmingDelete(name);
+      setDeleteError(null);
+      return;
+    }
+    setDeleteError(null);
+    setDeleting(name);
+    const { error } = await deleteRepository(name);
+    setDeleting(null);
+    setConfirmingDelete(null);
+    if (error) setDeleteError(error);
   };
 
   return (
@@ -119,20 +170,90 @@ export default function RepositoriesPage() {
       )}
 
       <div className="flex flex-wrap gap-3">
-        {repos.map((r, i) => (
-          <Link
-            key={r.name}
-            href={`/?repo=${encodeURIComponent(r.name)}`}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-white font-semibold bg-gradient-to-br ${
-              CHIP_GRADIENTS[i % CHIP_GRADIENTS.length]
-            } shadow-md hover:opacity-90 transition-opacity`}
-          >
-            <FolderIcon />
-            {r.name}
-            <span className="text-xs font-bold bg-white/25 rounded-full px-2 py-0.5">{r.songCount}</span>
-          </Link>
-        ))}
+        {repos.map((r, i) =>
+          renaming === r.name ? (
+            <div
+              key={r.name}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-br ${
+                CHIP_GRADIENTS[i % CHIP_GRADIENTS.length]
+              } shadow-md`}
+            >
+              <input
+                autoFocus
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleRename(r.name);
+                  if (e.key === "Escape") cancelRename();
+                }}
+                className="w-32 rounded-full px-2.5 py-1 text-sm text-ink bg-white/90 dark:bg-white/90"
+              />
+              <button
+                type="button"
+                onClick={() => handleRename(r.name)}
+                disabled={renameSaving}
+                title="Save new name"
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-white/25 text-white hover:bg-white/35 disabled:opacity-50"
+              >
+                ✓
+              </button>
+              <button
+                type="button"
+                onClick={cancelRename}
+                title="Cancel"
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-white/25 text-white hover:bg-white/35"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div
+              key={r.name}
+              className={`flex items-center gap-2 pl-4 pr-2 py-2.5 rounded-full text-white font-semibold bg-gradient-to-br ${
+                CHIP_GRADIENTS[i % CHIP_GRADIENTS.length]
+              } shadow-md`}
+            >
+              <Link href={`/?repo=${encodeURIComponent(r.name)}`} className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+                <FolderIcon />
+                {r.name}
+                <span className="text-xs font-bold bg-white/25 rounded-full px-2 py-0.5">{r.songCount}</span>
+              </Link>
+              {user && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => startRename(r.name)}
+                    title={`Rename "${r.name}"`}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 transition-colors"
+                  >
+                    <EditIcon />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(r.name)}
+                    onBlur={() => confirmingDelete === r.name && setConfirmingDelete(null)}
+                    disabled={deleting === r.name}
+                    title={
+                      confirmingDelete === r.name
+                        ? `Tap again to permanently delete "${r.name}"`
+                        : `Delete "${r.name}"`
+                    }
+                    className={`flex items-center justify-center rounded-full transition-colors disabled:opacity-50 ${
+                      confirmingDelete === r.name
+                        ? "px-2 h-6 text-[10px] font-bold bg-red-600/90 hover:bg-red-600 whitespace-nowrap"
+                        : "w-6 h-6 bg-white/15 hover:bg-white/30"
+                    }`}
+                  >
+                    {deleting === r.name ? "..." : confirmingDelete === r.name ? "Confirm?" : <TrashIcon />}
+                  </button>
+                </>
+              )}
+            </div>
+          )
+        )}
       </div>
+      {renameError && <p className="text-sm text-red-500">{renameError}</p>}
+      {deleteError && <p className="text-sm text-red-500">Couldn&apos;t delete that repository ({deleteError}).</p>}
     </div>
   );
 }
@@ -142,6 +263,30 @@ function FolderIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path
         d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path
+        d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path
+        d="M4 7h16M9 7V4h6v3m-7 0 1 13h8l1-13"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

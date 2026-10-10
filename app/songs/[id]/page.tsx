@@ -97,28 +97,33 @@ export default function SongPage() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-semibold mb-2">Transpose within your chords</h2>
+        <h2 className="font-semibold mb-2">Transpose</h2>
         {viableShifts.length === 0 ? (
           <p className="text-sm text-ink/60 dark:text-cream/60">
-            No shift makes this song fit entirely inside A, E, Em, G, C, D — it needs at least one chord outside your set.
+            No transpose amount makes this song fit entirely inside A, E, Em, G, C, D — it needs at least one chord
+            outside your set no matter how it's shifted.
           </p>
         ) : (
           <>
             <p className="text-sm text-ink/60 dark:text-cream/60 mb-3">
-              These shifts keep every chord within A, E, Em, G, C, D. Pick whichever sits best in your vocal range.
+              Every number below is a semitone shift (like moving a capo) that lands all of this song&apos;s chords
+              inside your A, E, Em, G, C, D. <strong>0 means your original chords, exactly as entered, already fit</strong> —
+              if 0 isn&apos;t listed, that song&apos;s original chords use something outside your set, and one of the
+              shifts below is the only way to play it in your 6 chords. Pick whichever number sits best in your
+              vocal range.
             </p>
             <div className="flex flex-wrap gap-2">
               {viableShifts.map((s) => (
                 <button
                   key={s}
                   onClick={() => setShift(s)}
-                  className={`px-3 py-1.5 rounded-full text-sm border ${
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${
                     shift === s
                       ? "bg-teal text-white border-teal"
                       : "border-black/10 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10"
                   }`}
                 >
-                  {s === 0 ? "Original" : `Shift +${s}`}
+                  {s === 0 ? "0 (original)" : `+${s}`}
                 </button>
               ))}
             </div>

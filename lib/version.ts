@@ -328,14 +328,22 @@
 //           pushed, naming exactly what changed with a one-tap "Upgrade
 //           now" button — replacing the old easy-to-miss red dot as the
 //           main way you'll know an update landed.
-export const APP_VERSION = "1.44.0";
+//   1.45 — Real bug fix: the 1.44 "What's new" banner only ever showed up
+//           AFTER you'd already manually refreshed, because it relied
+//           entirely on the browser's own lazy service-worker update check
+//           (which can go a full day between checks). The app now also
+//           actively polls a tiny version file every ~90 seconds and every
+//           time you switch back to the tab, so a new deploy gets noticed
+//           and the banner appears on its own — no manual refresh needed
+//           (except this one time, to pick up this very fix).
+export const APP_VERSION = "1.45.0";
 
 // One-line, user-facing summary of the CURRENT version, shown in the new
 // "What's new" update banner (components/UpdateToast.tsx). Keep this short
 // and in plain language — it's the thing you actually read, not the full
 // changelog comment above. Update this alongside APP_VERSION every time.
 export const LATEST_SUMMARY =
-  "Song editor: fixed paragraph spacing on paste, added Bold/Italic/spacing buttons + live preview. Nav reordered with icons. Clearer Transpose numbers. Bigger YouTube player.";
+  "Fixed: the update banner now appears on its own when a new version ships — it was only showing up after a manual refresh before.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

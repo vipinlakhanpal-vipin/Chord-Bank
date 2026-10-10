@@ -15,7 +15,8 @@ create table if not exists songs (
   genres text[] not null default '{}', -- from the fixed GENRES list in lib/types.ts, feeds the Genre filter
   tags text[],
   added_via text not null default 'manual' check (added_via in ('seed','manual','ai-workflow')),
-  repository text, -- free-text name (e.g. "Vipin") from the Repositories page/Add Song, feeds the Repository filter
+  repository text, -- deprecated single-repository column, no longer written to — kept so nothing breaks if anything still reads it; see repositories below
+  repositories text[] not null default '{}', -- free-text names (e.g. "Vipin", "Guitar Favourite") a song can carry any number of, feeds the Repository filter
   created_at timestamptz not null default now()
 );
 
@@ -23,8 +24,10 @@ create table if not exists songs (
 -- lines in the SQL editor — safe to re-run, each no-ops if already applied:
 --   alter table songs add column if not exists genres text[] not null default '{}';
 --   alter table songs add column if not exists repository text;
+--   alter table songs add column if not exists repositories text[] not null default '{}';
+--   update songs set repositories = array[repository] where repository is not null and repositories = '{}';
 
--- A repository is just a name songs get tagged with (songs.repository above) —
+-- A repository is just a name songs get tagged with (songs.repositories above) —
 -- this table exists so a repository can be created ahead of any song being
 -- added to it (shows up as "Vipin · 0 songs" right away). If you're migrating
 -- from the old language/year-range repositories table, drop it first:

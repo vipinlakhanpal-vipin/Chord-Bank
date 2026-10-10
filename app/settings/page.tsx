@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useTheme } from "@/components/ThemeProvider";
+import { StackIcon } from "@/components/Navbar";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function SettingsPage() {
@@ -71,6 +73,27 @@ export default function SettingsPage() {
           </p>
         )}
       </div>
+
+      {/* Repositories used to be its own top-level tab — moved here since
+          it's library/account configuration (naming and organizing your
+          folders) rather than something you jump to every session. */}
+      <Link
+        href="/repositories"
+        className="card p-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-9 h-9 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-amber-500 to-orange-600 shrink-0">
+            <StackIcon />
+          </span>
+          <div>
+            <p className="font-semibold">Repositories</p>
+            <p className="text-sm text-ink/60 dark:text-cream/60">
+              Create, rename, or delete the folders your songs are grouped under.
+            </p>
+          </div>
+        </div>
+        <span className="text-ink/30 dark:text-cream/30">›</span>
+      </Link>
 
       <div className="card p-4">
         <p className="font-semibold mb-1">Your chords</p>

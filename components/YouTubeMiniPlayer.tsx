@@ -2,8 +2,39 @@
 
 import { useEffect, useRef, useState } from "react";
 
+declare global {
+  interface Window {
+    YT?: any;
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+// Loads the YouTube IFrame Player API script exactly once, however many
+// YouTubeMiniPlayer instances exist on the page, and resolves every caller's
+// promise once it's ready.
+let ytApiPromise: Promise<void> | null = null;
+function loadYouTubeApi(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.YT?.Player) return Promise.resolve();
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise((resolve) => {
+    const prevCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prevCallback?.();
+      resolve();
+    };
+    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    }
+  });
+  return ytApiPromise;
+}
+
 // A small YouTube icon/link. Clicking it opens a compact popup with the
-// official embedded player — just enough to listen along while you practice.
+// official embedded player — just enough to listen along while you practice,
+// entirely in-app; it never navigates away or opens a new tab on its own.
 // The popup can be dragged anywhere on screen by its title bar, so it never
 // has to sit on top of the lyrics you're reading.
 export default function YouTubeMiniPlayer({
@@ -18,8 +49,16 @@ export default function YouTubeMiniPlayer({
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [dragging, setDragging] = useState(false);
+  // Only true once YouTube itself reports this specific video can't be
+  // embedded (its owner disabled embedding, or it's gone) — the "Open on
+  // YouTube" link below only appears then, instead of always being there
+  // and getting mistaken for part of the in-app player opening a tab.
+  const [embedBlocked, setEmbedBlocked] = useState(false);
   const dragState = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
+  const containerId = useRef(`yt-player-${videoId}-${Math.random().toString(36).slice(2)}`).current;
 
   const beginDrag = (clientX: number, clientY: number) => {
     const rect = popupRef.current?.getBoundingClientRect();
@@ -68,6 +107,39 @@ export default function YouTubeMiniPlayer({
     };
   }, [dragging]);
 
+  // Builds the real YouTube player via the IFrame API (instead of a bare
+  // <iframe src="...">) specifically so onError can tell us WHY playback
+  // failed — error 101/150 means the video's owner disabled embedding
+  // entirely, which is the one case where this app genuinely can't play it
+  // in-app and the "Open on YouTube" fallback link is the only option.
+  useEffect(() => {
+    if (!open) {
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+      return;
+    }
+    setEmbedBlocked(false);
+    let cancelled = false;
+    loadYouTubeApi().then(() => {
+      if (cancelled || !playerContainerRef.current || !window.YT) return;
+      playerRef.current = new window.YT.Player(containerId, {
+        videoId,
+        playerVars: { rel: 0 },
+        events: {
+          onError: (e: { data: number }) => {
+            if ([100, 101, 150].includes(e.data)) setEmbedBlocked(true);
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, videoId]);
+
   return (
     <>
       <button
@@ -77,7 +149,7 @@ export default function YouTubeMiniPlayer({
           setPos(null);
           setOpen(true);
         }}
-        title={`Play "${title}" on YouTube`}
+        title={`Play "${title}" right here in the app`}
         className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500/80 hover:text-red-500"
       >
         <svg width={compact ? 12 : 14} height={compact ? 12 : 14} viewBox="0 0 24 24" fill="currentColor">
@@ -93,7 +165,7 @@ export default function YouTubeMiniPlayer({
 
           <div
             ref={popupRef}
-            className="absolute bg-white dark:bg-ink rounded-2xl shadow-xl overflow-hidden w-72"
+            className="absolute bg-white dark:bg-ink rounded-2xl shadow-xl overflow-hidden w-[22rem] sm:w-[30rem] max-w-[92vw]"
             style={
               pos
                 ? { left: pos.x, top: pos.y }
@@ -115,33 +187,24 @@ export default function YouTubeMiniPlayer({
               </button>
             </div>
             <div className="aspect-video w-full relative">
-              <iframe
-                className="w-full h-full"
-                // No autoplay: Chrome's autoplay-with-sound policy silently blocks
-                // it on most opens (autoplay is a query param we set on the outer
-                // page, not a gesture made inside the YouTube frame itself), which
-                // just left the popup spinning forever with nothing visibly wrong.
-                // Loading with the normal YouTube thumbnail + play button means one
-                // extra tap, but it actually starts every time.
-                src={`https://www.youtube.com/embed/${videoId}`}
-                title={`${title} — YouTube`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-              {/* Swallows pointer events while dragging so the iframe never steals them */}
+              <div id={containerId} ref={playerContainerRef} className="w-full h-full" />
+              {/* Swallows pointer events while dragging so the player never steals them */}
               {dragging && <div className="absolute inset-0" />}
             </div>
-            {/* Some labels disable embedding for their official videos — the iframe
-                above shows "Video unavailable" for those. This link always works
-                as a fallback, opening the same video on youtube.com in a new tab. */}
-            <a
-              href={`https://www.youtube.com/watch?v=${videoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center text-[11px] text-teal py-1.5 border-t border-black/5 dark:border-white/10"
-            >
-              Video not playing? Open on YouTube ↗
-            </a>
+            {/* Only shown once YouTube itself reports this video can't be embedded
+                (its owner disabled it, or it's gone) — see onError above. Opens
+                the same video on youtube.com in a new tab as the one fallback for
+                that specific case; the player above is otherwise fully in-app. */}
+            {embedBlocked && (
+              <a
+                href={`https://www.youtube.com/watch?v=${videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-[11px] text-teal py-1.5 border-t border-black/5 dark:border-white/10"
+              >
+                This video&apos;s owner disabled in-app playback — open on YouTube ↗
+              </a>
+            )}
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -8,6 +8,7 @@ import { Genre, GENRES, Song } from "@/lib/types";
 import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { convertUgChartToInline } from "@/lib/chartImport";
 import { useRepositories } from "@/lib/useRepositories";
+import ChordLine from "./ChordLine";
 
 // Solid gradient fill + white text per genre — like a contacts app's category
 // chips, not a tinted outline. Every chip is at FULL brightness ALL the
@@ -94,6 +95,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { names: repoNames, createRepository } = useRepositories();
+  const chartRef = useRef<HTMLTextAreaElement>(null);
 
   const chartLines = useMemo(
     () => chartText.split("\n").map((l) => l.replace(/\r$/, "")),
@@ -132,6 +134,45 @@ export default function SongForm({ existing }: { existing?: Song }) {
   // typed in over multiple steps, or a browser that blocks clipboard reads on
   // paste) — reformats whatever's already in the box.
   const handleReformat = () => setChartText((prev) => convertUgChartToInline(prev));
+
+  // Wraps the currently-selected text in the Chord chart box with Bold/
+  // Italic markers (or inserts a placeholder if nothing's selected), then
+  // restores focus and selection so you can keep typing right where you
+  // were. The markers themselves (**bold**, *italic*) are what
+  // components/ChordLine.tsx renders as real bold/italic on the song page.
+  const wrapSelection = (marker: string, placeholder: string) => {
+    const el = chartRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const selected = chartText.slice(start, end) || placeholder;
+    const next = chartText.slice(0, start) + marker + selected + marker + chartText.slice(end);
+    setChartText(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const cursor = start + marker.length + selected.length + marker.length;
+      el.setSelectionRange(cursor, cursor);
+    });
+  };
+
+  // A blank chart line IS a paragraph break in this app's chord-chart format
+  // (lib/types.ts) — ChordLine.tsx renders it as real vertical space on the
+  // song page. This button inserts one at the cursor without you needing to
+  // know that's how spacing works, so you can space out verses/sections as
+  // you paste or edit, directly where you want the gap.
+  const insertSpacing = () => {
+    const el = chartRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = chartText.slice(0, start) + "\n\n" + chartText.slice(end);
+    setChartText(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const cursor = start + 2;
+      el.setSelectionRange(cursor, cursor);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,9 +335,43 @@ export default function SongForm({ existing }: { existing?: Song }) {
       <Field
         label="Chord chart"
         full
-        hint={`Paste straight from Ultimate Guitar or a similar site (chords on their own line above the lyrics) — it's auto-converted to inline [Chord]lyric format the moment you paste. Already-inline text pastes through unchanged. However it lands, you can freely retype or move any [Chord] tag to fix placement, and mark sections with "## Verse", "## Chorus", "## Bridge" etc.`}
+        hint={`Paste straight from Ultimate Guitar or a similar site (chords on their own line above the lyrics) — it's auto-converted to inline [Chord]lyric format the moment you paste, and a paste that collapsed into one paragraph elsewhere is un-collapsed automatically here too. Already-inline text pastes through unchanged. Use the B/I buttons (or type **bold** / *italic* yourself) to format words, and "Add spacing" (or a blank line) to put real space between verses — the preview below shows exactly how it'll look on the song page. Mark sections with "## Verse", "## Chorus", "## Bridge" etc.`}
       >
+        <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+          <button
+            type="button"
+            onClick={() => wrapSelection("**", "bold text")}
+            title="Bold the selected text"
+            className="text-xs font-extrabold px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            onClick={() => wrapSelection("*", "italic text")}
+            title="Italicize the selected text"
+            className="text-xs italic font-semibold px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            I
+          </button>
+          <button
+            type="button"
+            onClick={insertSpacing}
+            title="Insert a paragraph break (blank line) at the cursor"
+            className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            ¶ Add spacing
+          </button>
+          <button
+            type="button"
+            onClick={handleReformat}
+            className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            Re-run auto-format
+          </button>
+        </div>
         <textarea
+          ref={chartRef}
           value={chartText}
           onChange={(e) => setChartText(e.target.value)}
           onPaste={handleChartPaste}
@@ -304,13 +379,17 @@ export default function SongForm({ existing }: { existing?: Song }) {
           placeholder={"## Verse 1\n[G]Your [D]lyric line here\n[Em]Next line [C]here\n## Chorus\n..."}
           className={`${INPUT_CLASS} font-mono text-sm`}
         />
-        <button
-          type="button"
-          onClick={handleReformat}
-          className="mt-1.5 text-xs font-semibold text-teal underline"
-        >
-          Re-run auto-format on this text
-        </button>
+
+        <p className="text-[10px] font-bold uppercase tracking-wide text-ink/40 dark:text-cream/40 mt-3 mb-1.5">
+          Preview — exactly how this will appear on the song page
+        </p>
+        <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-3 max-h-64 overflow-y-auto font-mono text-sm">
+          {chartLines.some((l) => l.trim()) ? (
+            chartLines.map((line, i) => <ChordLine key={i} line={line} />)
+          ) : (
+            <p className="text-xs text-ink/40 dark:text-cream/40 font-sans">Nothing to preview yet.</p>
+          )}
+        </div>
       </Field>
 
       {preview && (

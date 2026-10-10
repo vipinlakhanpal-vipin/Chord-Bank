@@ -9,12 +9,15 @@ import { APP_VERSION, formatVersion } from "@/lib/version";
 import { useUpdateAvailable } from "@/lib/useUpdateAvailable";
 import { useAuthUser } from "@/lib/useAuthUser";
 
+// Home is rendered on its own, first, right before Add Song (see below) —
+// not in this list — so order in the desktop nav is always: Home, Add Song,
+// then everything else. Each entry now carries its own icon so every tab
+// reads as a real tab, not just Add Song standing out as the only one with one.
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/record", label: "Record" },
-  { href: "/repositories", label: "Repositories" },
-  { href: "/favourites", label: "Favourite" },
-  { href: "/settings", label: "Settings" },
+  { href: "/record", label: "Record", Icon: MicIcon },
+  { href: "/repositories", label: "Repositories", Icon: StackIcon },
+  { href: "/favourites", label: "Favourite", Icon: FavIcon },
+  { href: "/settings", label: "Settings", Icon: SettingsIcon },
 ];
 
 export default function Navbar() {
@@ -72,6 +75,21 @@ export default function Navbar() {
           </span>
         </div>
         <div className="hidden sm:flex items-center gap-1 sm:gap-4 shrink-0">
+          {/* Home first — it's where you land and where the full song list/
+              filters live, so it comes before Add Song, not after. */}
+          <Link
+            href="/"
+            aria-label="Home"
+            title="Home"
+            className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
+              pathname === "/"
+                ? "text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
+                : "text-ink/70 dark:text-cream/70"
+            }`}
+          >
+            <HomeIcon />
+            Home
+          </Link>
           <Link
             href={user ? "/songs/new" : "/login"}
             aria-label="Add Song"
@@ -89,12 +107,13 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
                 pathname === l.href
                   ? "text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
                   : "text-ink/70 dark:text-cream/70"
               }`}
             >
+              <l.Icon />
               {l.label}
             </Link>
           ))}
@@ -142,12 +161,46 @@ export default function Navbar() {
   );
 }
 
+function HomeIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function FavIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path
+        d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.6 6.6 4.6 5.1 7 3.9 9.6 4.7 12 7.3c2.4-2.6 5-3.4 7.4-2.2 3 1.5 3.6 5.1 1.9 7.8C18.7 16.65 12 21 12 21Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function MicIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <rect x="9" y="2" width="6" height="12" rx="3" />
       <path d="M5 10a7 7 0 0 0 14 0" strokeLinecap="round" />
       <path d="M12 19v3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <circle cx="12" cy="12" r="3" />
+      <path
+        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

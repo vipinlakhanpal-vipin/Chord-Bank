@@ -8,6 +8,7 @@ import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { GENRES, Genre } from "@/lib/types";
 import { useSongs } from "@/lib/useSongs";
 import { useAuthUser } from "@/lib/useAuthUser";
+import { useFavouriteIds } from "@/lib/useFavourites";
 
 const GRID = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5 sm:gap-2";
 // Sized to comfortably fill a wide desktop screen (up to 10 columns) before
@@ -31,8 +32,13 @@ function HomePageInner() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { songs: SONGS, loading, error: songsError } = useSongs();
   const { user } = useAuthUser();
+  const favouriteIds = useFavouriteIds();
   const [query, setQuery] = useState("");
   const [onlyPlayable, setOnlyPlayable] = useState(false);
+  // Favourite used to be its own tab/page — now it's just another filter
+  // here, same idea as "Only playable", since it's filtering the exact same
+  // song list rather than showing something different.
+  const [onlyFavourites, setOnlyFavourites] = useState(false);
   const [viewMode, setViewMode] = useState<"bySinger" | "all">("bySinger");
   const [year, setYear] = useState<string>("all");
   const [singer, setSinger] = useState<string>("all");
@@ -52,7 +58,7 @@ function HomePageInner() {
 
   useEffect(() => {
     setPage(1);
-  }, [query, onlyPlayable, year, singer, genre, repository, viewMode]);
+  }, [query, onlyPlayable, onlyFavourites, year, singer, genre, repository, viewMode]);
 
   const years = useMemo(() => Array.from(new Set(SONGS.map((s) => s.year))).sort((a, b) => b - a), [SONGS]);
   const singers = useMemo(
@@ -71,10 +77,7 @@ function HomePageInner() {
     return counts;
   }, [SONGS]);
   const repositories = useMemo(
-    () =>
-      Array.from(new Set(SONGS.map((s) => s.repository).filter((r): r is string => !!r))).sort((a, b) =>
-        a.localeCompare(b)
-      ),
+    () => Array.from(new Set(SONGS.flatMap((s) => s.repositories))).sort((a, b) => a.localeCompare(b)),
     [SONGS]
   );
 
@@ -88,14 +91,15 @@ function HomePageInner() {
       if (year !== "all" && s.year !== Number(year)) return false;
       if (singer !== "all" && !s.singers.includes(singer)) return false;
       if (genre !== "all" && !s.genres.includes(genre)) return false;
-      if (repository !== "all" && s.repository !== repository) return false;
+      if (repository !== "all" && !s.repositories.includes(repository)) return false;
+      if (onlyFavourites && !favouriteIds.includes(s.id)) return false;
       if (onlyPlayable) {
         const { playableAsIs, bestShift } = matchScore(extractChordsFromChart(s.chart));
-        return playableAsIs || bestShift !== null;
+        if (!playableAsIs && bestShift === null) return false;
       }
       return true;
     });
-  }, [SONGS, query, onlyPlayable, year, singer, genre, repository]);
+  }, [SONGS, query, onlyPlayable, onlyFavourites, favouriteIds, year, singer, genre, repository]);
 
   const bySinger = useMemo(() => {
     const map = new Map<string, typeof SONGS>();
@@ -110,9 +114,14 @@ function HomePageInner() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pagedFlat = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const activeFilterCount = [year !== "all", singer !== "all", genre !== "all", repository !== "all", onlyPlayable].filter(
-    Boolean
-  ).length;
+  const activeFilterCount = [
+    year !== "all",
+    singer !== "all",
+    genre !== "all",
+    repository !== "all",
+    onlyPlayable,
+    onlyFavourites,
+  ].filter(Boolean).length;
 
   return (
     <div className="flex flex-col gap-5">
@@ -133,30 +142,14 @@ function HomePageInner() {
         </Link>
       </div>
 
-      {/* Search + view toggle */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          ref={searchInputRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by song, singer, or movie..."
-          className="flex-1 rounded-xl px-4 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
-        />
-        <div className="inline-flex gap-1.5 self-start">
-          <button
-            onClick={() => setViewMode("bySinger")}
-            className={pillClass(FILTER_TINTS.indigo, viewMode === "bySinger")}
-          >
-            By Singer
-          </button>
-          <button
-            onClick={() => setViewMode("all")}
-            className={pillClass(FILTER_TINTS.teal, viewMode === "all")}
-          >
-            All Songs
-          </button>
-        </div>
-      </div>
+      {/* Search */}
+      <input
+        ref={searchInputRef}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search by song, singer, or movie..."
+        className="w-full rounded-xl px-4 py-2 border border-black/10 dark:border-white/10 bg-white dark:bg-white/5"
+      />
 
       {/* One tile per singer, auto-created from whatever names show up in the
           Singers field on Add/Edit Song — add a song under a new singer and
@@ -192,8 +185,19 @@ function HomePageInner() {
 
       {/* Filters — each gets its own tint so the row reads at a glance, matching
           the colored badges already used on song tiles (bg-<color>/10, solid
-          <color> once a value is actually picked). */}
+          <color> once a value is actually picked). By Singer/All Songs lives
+          here too now, first in the row — it's a view filter just like the
+          rest, not something separate tied to the search box. */}
       <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setViewMode("bySinger")}
+          className={pillClass(FILTER_TINTS.indigo, viewMode === "bySinger")}
+        >
+          By Singer
+        </button>
+        <button onClick={() => setViewMode("all")} className={pillClass(FILTER_TINTS.teal, viewMode === "all")}>
+          All Songs
+        </button>
         <FilterSelect
           label="Year"
           color="saffron"
@@ -225,6 +229,12 @@ function HomePageInner() {
         <button onClick={() => setOnlyPlayable((v) => !v)} className={pillClass(FILTER_TINTS.teal, onlyPlayable)}>
           Only playable
         </button>
+        <button
+          onClick={() => setOnlyFavourites((v) => !v)}
+          className={pillClass(FILTER_TINTS.rose, onlyFavourites)}
+        >
+          ♥ Favourites
+        </button>
         <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-ink/10 dark:bg-white/15 text-ink/70 dark:text-cream/80">
           <span className="text-teal dark:text-saffron font-bold">{SONGS.length}</span> song
           {SONGS.length === 1 ? "" : "s"} in the library
@@ -237,6 +247,7 @@ function HomePageInner() {
               setGenre("all");
               setRepository("all");
               setOnlyPlayable(false);
+              setOnlyFavourites(false);
             }}
             className="text-xs text-ink/40 dark:text-cream/40 underline"
           >

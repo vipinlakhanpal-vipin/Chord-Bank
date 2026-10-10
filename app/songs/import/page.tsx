@@ -133,10 +133,12 @@ export default function ImportSongsPage() {
       setRows((prev) => prev.map((r) => (r.rowNumber === row.rowNumber ? { ...r, status: "importing" } : r)));
 
       try {
-        const trimmedRepo = row.repository?.trim() || "Vipin";
-        if (trimmedRepo && !repositoriesCreated.has(trimmedRepo)) {
-          await createRepository(trimmedRepo);
-          repositoriesCreated.add(trimmedRepo);
+        const rowRepos = row.repositories.length > 0 ? row.repositories : ["Vipin"];
+        for (const name of rowRepos) {
+          if (!repositoriesCreated.has(name)) {
+            await createRepository(name);
+            repositoriesCreated.add(name);
+          }
         }
 
         let id = slugify(row.title);
@@ -159,7 +161,7 @@ export default function ImportSongsPage() {
           chart: row.chart,
           genres: row.genres,
           added_via: "manual",
-          repository: trimmedRepo,
+          repositories: rowRepos,
         });
 
         if (error) {
@@ -312,7 +314,7 @@ export default function ImportSongsPage() {
                     <td className="py-1.5 px-2 font-medium">{r.title || <span className="text-ink/40">—</span>}</td>
                     <td className="py-1.5 px-2">{r.singers.join(", ") || <span className="text-ink/40">—</span>}</td>
                     <td className="py-1.5 px-2">{r.year ?? <span className="text-ink/40">—</span>}</td>
-                    <td className="py-1.5 px-2">{r.repository || "Vipin"}</td>
+                    <td className="py-1.5 px-2">{r.repositories.length > 0 ? r.repositories.join(", ") : "Vipin"}</td>
                     <td className="py-1.5 px-2">
                       {r.errors.length > 0 ? (
                         <span className="text-red-500 text-xs">{r.errors.join(" ")}</span>

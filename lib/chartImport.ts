@@ -74,7 +74,19 @@ function mergeChordAndLyric(chordLine: string, lyricLine: string): string {
  * anything — including a chart that's already in the right format.
  */
 export function convertUgChartToInline(raw: string): string {
-  const lines = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  // Normalize every line-break flavor to a plain "\n" before splitting. Some
+  // sources (Notes app, certain share-sheet copies, Word/Pages) use the
+  // Unicode LINE SEPARATOR / PARAGRAPH SEPARATOR characters (U+2028/U+2029)
+  // instead of "\n" — those look identical to a normal line break wherever
+  // you copied them from, but a plain .split("\n") can't see them, so the
+  // whole multi-verse song silently collapses into a single line/paragraph
+  // once pasted here. Catching them here fixes that at the source, for
+  // every paste, without the user having to do anything differently.
+  const lines = raw
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(new RegExp("[\u2028\u2029]", "g"), "\n")
+    .split("\n");
   const out: string[] = [];
   let i = 0;
   while (i < lines.length) {

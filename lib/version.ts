@@ -305,7 +305,37 @@
 //           tile filters the library down to that singer's songs (tap again
 //           to clear); existing Singer dropdown filter still works the same
 //           way alongside it.
-export const APP_VERSION = "1.43.0";
+//   1.44 — Chord chart editor: fixed the real cause of pasted songs
+//           collapsing into one giant paragraph — some apps copy text using
+//           an invisible Unicode line-break character this app's paste box
+//           couldn't see, so multi-verse structure silently vanished; now
+//           normalized automatically on every paste. Added Bold (**text**)
+//           and Italic (*text*) buttons plus an "Add spacing" button that
+//           inserts a real paragraph break, and a live preview under the
+//           box showing exactly how the chart will look on the song page
+//           before you save. Desktop nav: Home now comes before Add Song
+//           (was after), and every tab (Home, Add Song, Record,
+//           Repositories, Favourite, Settings) has its own icon instead of
+//           Add Song being the only one. Transpose section on the song page
+//           relabeled from "Original"/"Shift +N" to a plain numeric list
+//           under a "Transpose" heading, with a clearer explanation of why
+//           0 sometimes isn't in the list (your song's original chords use
+//           something outside A, E, Em, G, C, D, so only the listed shifts
+//           actually play in your 6 chords). YouTube popup is noticeably
+//           bigger (it was already playing in-app, not redirecting to
+//           YouTube — only the size was the issue). New: a big "What's new"
+//           banner now appears right on screen the moment a new version is
+//           pushed, naming exactly what changed with a one-tap "Upgrade
+//           now" button — replacing the old easy-to-miss red dot as the
+//           main way you'll know an update landed.
+export const APP_VERSION = "1.44.0";
+
+// One-line, user-facing summary of the CURRENT version, shown in the new
+// "What's new" update banner (components/UpdateToast.tsx). Keep this short
+// and in plain language — it's the thing you actually read, not the full
+// changelog comment above. Update this alongside APP_VERSION every time.
+export const LATEST_SUMMARY =
+  "Song editor: fixed paragraph spacing on paste, added Bold/Italic/spacing buttons + live preview. Nav reordered with icons. Clearer Transpose numbers. Bigger YouTube player.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

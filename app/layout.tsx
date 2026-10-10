@@ -4,6 +4,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import UpdateToast from "@/components/UpdateToast";
 
 export const metadata: Metadata = {
   title: "Chord Bank — Bollywood Chords for the 6 Chords You Know",
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <ServiceWorkerRegister />
+          <UpdateToast />
           <Navbar />
           <main className="max-w-6xl mx-auto px-2.5 sm:px-4 pt-16 pb-24 sm:pt-24 sm:pb-6">{children}</main>
           <BottomNav />

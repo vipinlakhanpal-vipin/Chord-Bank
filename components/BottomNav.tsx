@@ -31,7 +31,7 @@ export default function BottomNav() {
           New Update Available — tap Refresh
         </div>
       )}
-      <div className="grid grid-cols-6 items-end px-0.5 pt-1.5 pb-1.5">
+      <div className="grid grid-cols-5 items-end px-0.5 pt-1.5 pb-1.5">
         {/* Home was dropped from here once (the logo up top still linked to
             it), but that made the song list/filters hard to find on mobile —
             it's back as its own tab. Add Song used to sit right next to it,
@@ -47,10 +47,6 @@ export default function BottomNav() {
         </div>
 
         <UpdatesButton showLabel />
-
-        <NavItem href="/favourites" label="Favourites" active={isActive("/favourites")}>
-          <FavHeartIcon active={isActive("/favourites")} />
-        </NavItem>
 
         <NavItem href="/settings" label="Settings" active={isActive("/settings")}>
           <SettingsIcon />
@@ -98,25 +94,6 @@ function NavItem({
       {children}
       <span className="text-[9px]">{label}</span>
     </Link>
-  );
-}
-
-function FavHeartIcon({ active }: { active: boolean }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill={active ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path
-        d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.6 6.6 4.6 5.1 7 3.9 9.6 4.7 12 7.3c2.4-2.6 5-3.4 7.4-2.2 3 1.5 3.6 5.1 1.9 7.8C18.7 16.65 12 21 12 21Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 

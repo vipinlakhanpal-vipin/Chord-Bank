@@ -13,10 +13,13 @@ import { useAuthUser } from "@/lib/useAuthUser";
 // not in this list — so order in the desktop nav is always: Home, Add Song,
 // then everything else. Each entry now carries its own icon so every tab
 // reads as a real tab, not just Add Song standing out as the only one with one.
+// Repositories moved under Settings (it's account/library configuration,
+// not something you jump to every session) and Favourite was dropped as its
+// own tab entirely — it's now an "Only favourites" filter on Home instead,
+// next to "Only playable", since that's genuinely just a filter on the same
+// song list rather than a separate place to browse.
 const LINKS = [
   { href: "/record", label: "Record", Icon: MicIcon },
-  { href: "/repositories", label: "Repositories", Icon: StackIcon },
-  { href: "/favourites", label: "Favourite", Icon: FavIcon },
   { href: "/settings", label: "Settings", Icon: SettingsIcon },
 ];
 
@@ -137,17 +140,6 @@ export default function Navbar() {
             <MicIcon />
             Rec
           </Link>
-          <Link
-            href="/repositories"
-            aria-label="Repositories"
-            title="Repositories"
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm transition-all ${
-              pathname === "/repositories" ? "ring-2 ring-white/80 shadow-md" : ""
-            }`}
-          >
-            <StackIcon />
-            Repo
-          </Link>
           <button
             onClick={toggle}
             aria-label="Toggle theme"
@@ -166,18 +158,6 @@ function HomeIcon() {
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function FavIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path
-        d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.6 6.6 4.6 5.1 7 3.9 9.6 4.7 12 7.3c2.4-2.6 5-3.4 7.4-2.2 3 1.5 3.6 5.1 1.9 7.8C18.7 16.65 12 21 12 21Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }
@@ -205,7 +185,9 @@ function SettingsIcon() {
   );
 }
 
-function StackIcon() {
+// Exported for the Settings page's Repositories link, so it keeps the same
+// icon it had as a top-level nav tab now that it lives there instead.
+export function StackIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="m12 3 9 5-9 5-9-5 9-5Z" strokeLinecap="round" strokeLinejoin="round" />

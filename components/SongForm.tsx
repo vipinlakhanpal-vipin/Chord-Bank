@@ -88,10 +88,13 @@ export default function SongForm({ existing }: { existing?: Song }) {
   const [genres, setGenres] = useState<Genre[]>(existing?.genres ?? []);
   const [youtubeInput, setYoutubeInput] = useState(existing?.youtubeId ?? "");
   const [chartText, setChartText] = useState(existing?.chart.join("\n") ?? "");
-  // Defaults to "Vipin" for a brand-new song — this app has one owner, so
-  // that's the repository almost every song belongs in; still fully
-  // editable/clearable, and an existing song keeps whatever it already has.
-  const [repository, setRepository] = useState(existing?.repository ?? "Vipin");
+  // Defaults to just "Vipin" for a brand-new song — this app has one owner,
+  // so that's the repository almost every song starts in; still fully
+  // editable (toggle it off, add others), and an existing song keeps
+  // whatever it already has. A song can belong to more than one repository
+  // at once now — e.g. both "Guitar Favourite" and a singer's name.
+  const [repositories, setRepositories] = useState<string[]>(existing?.repositories ?? ["Vipin"]);
+  const [newRepoName, setNewRepoName] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { names: repoNames, createRepository } = useRepositories();
@@ -110,6 +113,22 @@ export default function SongForm({ existing }: { existing?: Song }) {
 
   const toggleGenre = (g: Genre) => {
     setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
+  };
+
+  const toggleRepository = (name: string) => {
+    setRepositories((prev) => (prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]));
+  };
+
+  // Adds whatever's typed in the "new repository" box as both a real
+  // repository (so it shows up on the Repositories page at 0-then-1 songs,
+  // same as before) and as one of this song's selected repositories, in one
+  // step — no separate trip to the Repositories page needed first.
+  const handleAddRepository = async () => {
+    const trimmed = newRepoName.trim();
+    if (!trimmed) return;
+    await createRepository(trimmed);
+    setRepositories((prev) => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
+    setNewRepoName("");
   };
 
   // Ultimate Guitar (and most tab sites) put chords on their own line, spaced
@@ -192,8 +211,10 @@ export default function SongForm({ existing }: { existing?: Song }) {
 
     setSaving(true);
 
-    const trimmedRepo = repository.trim();
-    if (trimmedRepo) await createRepository(trimmedRepo); // so it shows up in Repositories even at 0-then-1 songs
+    // Make sure every selected repository actually exists as a row (covers
+    // the rare case where one was picked right before being renamed/deleted
+    // elsewhere) — upsert is a no-op for ones that already exist.
+    for (const name of repositories) await createRepository(name);
 
     const payload = {
       title: trimmedTitle,
@@ -205,7 +226,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
       chart: chartLines,
       genres,
       added_via: "manual" as const,
-      repository: trimmedRepo || null,
+      repositories,
     };
 
     if (isEdit && existing) {
@@ -295,34 +316,26 @@ export default function SongForm({ existing }: { existing?: Song }) {
       </Field>
 
       <Field
-        label="Repository (optional)"
+        label="Repositories (optional)"
         full
-        hint={`Group this song under a name of your choosing — e.g. "Vipin" — so it shows up when you filter Home by that repository. Tap one of your existing repositories below, or type a new name to create one.`}
+        hint={`Group this song under one or more names of your choosing — e.g. "Vipin" and "Guitar Favourite" — so it shows up when you filter Home by any of them. Tap any number of your existing repositories below, or type a new name and tap Add to create one and select it in one step.`}
       >
-        <input
-          value={repository}
-          onChange={(e) => setRepository(e.target.value)}
-          placeholder="e.g. Vipin"
-          className={INPUT_CLASS}
-        />
-        {/* Tappable colored pills, same full-bright style as the genre pills
-            above — this is the reliable picker on every device (a plain
-            <input list="..."> datalist never shows any dropdown UI at all
-            on iOS Safari). Capped at a scrollable max-height instead of
-            growing the page: at 2-3 repositories it's one short row, and
-            once you're up around 10-20 it scrolls inside this box rather
-            than pushing the Chord chart field further down the form. */}
+        {/* Multi-select pills, same full-bright style as the genre pills
+            above — tap any number on, this is the reliable picker on every
+            device (a plain <input list="..."> datalist never shows any
+            dropdown UI at all on iOS Safari). Capped at a scrollable
+            max-height instead of growing the page. */}
         {repoNames.length > 0 && (
-          <div className="flex flex-wrap content-start gap-2 mt-2 max-h-28 overflow-y-auto pr-1">
+          <div className="flex flex-wrap content-start gap-2 max-h-28 overflow-y-auto pr-1">
             {repoNames.map((n, i) => (
               <button
                 type="button"
                 key={n}
-                onClick={() => setRepository(n)}
+                onClick={() => toggleRepository(n)}
                 className={`text-xs font-bold px-3 py-1.5 rounded-full text-white bg-gradient-to-br ${
                   REPO_STYLES[i % REPO_STYLES.length]
                 } shadow-sm transition-all ${
-                  repository.trim().toLowerCase() === n.toLowerCase() ? "ring-2 ring-white/80 shadow-md" : ""
+                  repositories.includes(n) ? "ring-2 ring-white/80 shadow-md" : ""
                 }`}
               >
                 {n}
@@ -330,6 +343,27 @@ export default function SongForm({ existing }: { existing?: Song }) {
             ))}
           </div>
         )}
+        <div className="flex gap-2 mt-2">
+          <input
+            value={newRepoName}
+            onChange={(e) => setNewRepoName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddRepository();
+              }
+            }}
+            placeholder="New repository name..."
+            className={INPUT_CLASS}
+          />
+          <button
+            type="button"
+            onClick={handleAddRepository}
+            className="shrink-0 px-4 rounded-xl text-sm font-semibold border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            Add
+          </button>
+        </div>
       </Field>
 
       <Field

@@ -336,14 +336,26 @@
 //           time you switch back to the tab, so a new deploy gets noticed
 //           and the banner appears on its own — no manual refresh needed
 //           (except this one time, to pick up this very fix).
-export const APP_VERSION = "1.45.0";
+//   1.46 — Rebuilt the song page's chord controls around two tabs instead
+//           of a flat row of shift buttons, since that old design could
+//           hide "0 (original)" entirely whenever a song's as-entered
+//           chords needed shifting to be playable — leaving no way back to
+//           your original chords once you'd picked a shift. Original now
+//           always shows your song exactly as entered, no matter what; tap
+//           it any time to get back. Transpose now steps one shift at a
+//           time with +/- buttons through every playable option, instead
+//           of a button per number. Also added capo guidance: whichever
+//           shift you're on now tells you the matching capo fret (if any)
+//           that would make those same easy shapes sound exactly like the
+//           original recording's key, not just a shifted-up version of it.
+export const APP_VERSION = "1.46.0";
 
 // One-line, user-facing summary of the CURRENT version, shown in the new
 // "What's new" update banner (components/UpdateToast.tsx). Keep this short
 // and in plain language — it's the thing you actually read, not the full
 // changelog comment above. Update this alongside APP_VERSION every time.
 export const LATEST_SUMMARY =
-  "Fixed: the update banner now appears on its own when a new version ships — it was only showing up after a manual refresh before.";
+  "Chord controls rebuilt: Original tab always gets you back to your as-entered chords, Transpose now steps with +/- buttons, and it tells you the matching capo fret for the original key.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

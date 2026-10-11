@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Song } from "@/lib/types";
-import { extractChordsFromChart, matchScore } from "@/lib/chords";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuthUser } from "@/lib/useAuthUser";
 import YouTubeMiniPlayer from "./YouTubeMiniPlayer";
+import RecordingPlayButton from "./RecordingPlayButton";
 import HeartButton from "./HeartButton";
 
 // Rotating accent palette so tiles read as colorful without any per-song config.
@@ -20,7 +20,6 @@ function accentFor(id: string) {
 }
 
 export default function SongCard({ song }: { song: Song }) {
-  const { playableAsIs, bestShift } = matchScore(extractChordsFromChart(song.chart));
   const { user } = useAuthUser();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
@@ -62,19 +61,15 @@ export default function SongCard({ song }: { song: Song }) {
       <p className="text-[11px] sm:text-[9.5px] text-ink/55 dark:text-cream/55 truncate">{song.singers[0]}</p>
       <div className="flex items-center justify-between mt-0.5 gap-1">
         <span className="text-[10px] sm:text-[9px] text-ink/35 dark:text-cream/35">{song.year}</span>
-        {song.youtubeId && (
-          <span className="ml-auto">
-            <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} compact />
-          </span>
-        )}
       </div>
-      {/* Bottom action row: Edit bottom-left, playable badge dead center,
-          Delete bottom-right — a 3-column grid keeps the badge truly
-          centered whether or not Edit/Delete are shown (logged out).
-          mt-auto (on a flex-col parent, stretched to equal row height by
-          the CSS grid above) eats all the leftover space above this row,
-          so it always sits flush on the tile's bottom edge instead of
-          trailing right under a short vs. long title/singer/genre block. */}
+      {/* Bottom action row: Edit bottom-left, a YouTube/recording button dead
+          center (whichever this song has — see below), Delete bottom-right —
+          a 3-column grid keeps the center slot truly centered whether or not
+          Edit/Delete are shown (logged out). mt-auto (on a flex-col parent,
+          stretched to equal row height by the CSS grid above) eats all the
+          leftover space above this row, so it always sits flush on the
+          tile's bottom edge instead of trailing right under a short vs. long
+          title/singer/genre block. */}
       <div className="grid grid-cols-3 items-center mt-auto pt-1">
         <span className="justify-self-start">
           {user && (
@@ -89,19 +84,11 @@ export default function SongCard({ song }: { song: Song }) {
           )}
         </span>
         <span className="justify-self-center">
-          {playableAsIs ? (
-            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white font-medium shadow-sm">
-              ✓
-            </span>
-          ) : bestShift !== null ? (
-            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-medium shadow-sm">
-              +{bestShift}
-            </span>
-          ) : (
-            <span className="text-[10px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-ink/40 dark:text-cream/40">
-              —
-            </span>
-          )}
+          {song.youtubeId ? (
+            <YouTubeMiniPlayer videoId={song.youtubeId} title={song.title} compact />
+          ) : song.recordingUrl ? (
+            <RecordingPlayButton url={song.recordingUrl} />
+          ) : null}
         </span>
         <span className="justify-self-end">
           {user && (

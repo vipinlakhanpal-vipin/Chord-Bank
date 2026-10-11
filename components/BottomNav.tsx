@@ -10,7 +10,11 @@ export default function BottomNav() {
   const pathname = usePathname();
   const { available: updatePending, acknowledge } = useUpdateAvailable();
 
-  const isActive = (href: string) => pathname === href;
+  // Repositories lives under Settings now — treat /repositories as "inside"
+  // Settings so that tab stays lit up there instead of going dark and making
+  // that page read as its own separate top-level section.
+  const isActive = (href: string) =>
+    pathname === href || (href === "/settings" && pathname.startsWith("/repositories"));
 
   return (
     <nav

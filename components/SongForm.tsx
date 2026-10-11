@@ -95,6 +95,15 @@ export default function SongForm({ existing }: { existing?: Song }) {
   // at once now — e.g. both "Guitar Favourite" and a singer's name.
   const [repositories, setRepositories] = useState<string[]>(existing?.repositories ?? ["Vipin"]);
   const [newRepoName, setNewRepoName] = useState("");
+  // Your own recording of this song (singing/playing it, not the original) —
+  // separate from the YouTube field above, which links the original. A song
+  // can have either, both, or neither. `recordingFile` is a newly-chosen file
+  // waiting to be uploaded on save; `existingRecordingUrl` is what's already
+  // saved (shown with a Remove option); `removeRecording` marks that it
+  // should be cleared on save even though no replacement was chosen.
+  const [recordingFile, setRecordingFile] = useState<File | null>(null);
+  const [existingRecordingUrl] = useState<string | null>(existing?.recordingUrl ?? null);
+  const [removeRecording, setRemoveRecording] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { names: repoNames, createRepository } = useRepositories();
@@ -216,6 +225,35 @@ export default function SongForm({ existing }: { existing?: Song }) {
     // elsewhere) — upsert is a no-op for ones that already exist.
     for (const name of repositories) await createRepository(name);
 
+    // Figure out the song id up front (edit: already known; create: slugify
+    // the title, same as below) so a recording upload can use it as the
+    // storage path even for a brand-new song.
+    let id = existing?.id ?? slugify(trimmedTitle);
+    if (!isEdit) {
+      if (!id) id = `song-${Date.now()}`;
+      const { data: clash } = await supabase.from("songs").select("id").eq("id", id).maybeSingle();
+      if (clash) id = `${id}-${Date.now().toString().slice(-5)}`;
+    }
+
+    // recordingUrl stays undefined (payload key omitted, existing value
+    // untouched) unless this save actually changes it — a fresh upload, or
+    // an explicit Remove.
+    let recordingUrl: string | null | undefined = undefined;
+    if (recordingFile) {
+      const ext = recordingFile.name.split(".").pop()?.toLowerCase() || "webm";
+      const path = `${id}/recording.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("recordings")
+        .upload(path, recordingFile, { upsert: true });
+      if (uploadError) {
+        setSaving(false);
+        return setError(`Couldn't upload the recording: ${uploadError.message}`);
+      }
+      recordingUrl = supabase.storage.from("recordings").getPublicUrl(path).data.publicUrl;
+    } else if (removeRecording) {
+      recordingUrl = null;
+    }
+
     const payload = {
       title: trimmedTitle,
       singers: singerList,
@@ -227,6 +265,7 @@ export default function SongForm({ existing }: { existing?: Song }) {
       genres,
       added_via: "manual" as const,
       repositories,
+      ...(recordingUrl !== undefined ? { recording_url: recordingUrl } : {}),
     };
 
     if (isEdit && existing) {
@@ -235,12 +274,6 @@ export default function SongForm({ existing }: { existing?: Song }) {
       if (error) return setError(error.message);
       router.push(`/songs/${existing.id}`);
     } else {
-      let id = slugify(trimmedTitle);
-      if (!id) id = `song-${Date.now()}`;
-      // If that id's taken, fall back to a suffixed one rather than failing.
-      const { data: clash } = await supabase.from("songs").select("id").eq("id", id).maybeSingle();
-      if (clash) id = `${id}-${Date.now().toString().slice(-5)}`;
-
       const { error } = await supabase.from("songs").insert({ id, ...payload });
       setSaving(false);
       if (error) return setError(error.message);
@@ -295,6 +328,45 @@ export default function SongForm({ existing }: { existing?: Song }) {
             placeholder="https://www.youtube.com/watch?v=..."
             className={INPUT_CLASS}
           />
+        </Field>
+        <Field
+          label="Your recording (optional)"
+          full
+          hint="Upload a recording of yourself singing/playing this song — once saved, a Play button shows up right on its tile on Home."
+        >
+          {existingRecordingUrl && !recordingFile && !removeRecording ? (
+            <div className="flex items-center gap-3">
+              <audio controls src={existingRecordingUrl} className="h-9 flex-1 min-w-0" />
+              <button
+                type="button"
+                onClick={() => setRemoveRecording(true)}
+                className="shrink-0 text-xs font-semibold px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => {
+                  setRecordingFile(e.target.files?.[0] ?? null);
+                  setRemoveRecording(false);
+                }}
+                className="text-sm"
+              />
+              {removeRecording && !recordingFile && (
+                <button
+                  type="button"
+                  onClick={() => setRemoveRecording(false)}
+                  className="shrink-0 text-xs text-teal underline"
+                >
+                  Keep existing recording
+                </button>
+              )}
+            </div>
+          )}
         </Field>
       </div>
 

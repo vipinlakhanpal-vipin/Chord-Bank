@@ -106,20 +106,28 @@ export default function Navbar() {
             </svg>
             Add Song
           </Link>
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
-                pathname === l.href
-                  ? "text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
-                  : "text-ink/70 dark:text-cream/70"
-              }`}
-            >
-              <l.Icon />
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) => {
+            // Repositories lives under Settings now (see the comment above
+            // LINKS) — treat /repositories as "inside" Settings so the tab
+            // stays highlighted there instead of going dark and making that
+            // page read as its own separate top-level section.
+            const isActive =
+              pathname === l.href || (l.href === "/settings" && pathname.startsWith("/repositories"));
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
+                  isActive
+                    ? "text-white font-semibold bg-gradient-to-br from-cyan-500 to-sky-700 shadow-md"
+                    : "text-ink/70 dark:text-cream/70"
+                }`}
+              >
+                <l.Icon />
+                {l.label}
+              </Link>
+            );
+          })}
           <button
             onClick={toggle}
             aria-label="Toggle theme"

@@ -373,14 +373,30 @@
 //           It now also compares against the last version you saw, stored
 //           on your device, and flashes the banner on that kind of "catching
 //           up" load too.
-export const APP_VERSION = "1.48.0";
+//   1.49 — Real bug fix: renaming a repository did nothing when you tapped
+//           the tick — the repositories table had no database permission to
+//           actually update a row, so the save silently affected 0 rows with
+//           no error shown. Fixed at the database level. Also: the
+//           Repositories page (now under Settings) didn't read as part of
+//           Settings at all — added a "← Settings" link at the top and the
+//           Settings tab now stays highlighted while you're there, on both
+//           desktop and mobile. Song tiles: removed the green checkmark/
+//           orange shift badge (it duplicated the Transpose info already on
+//           the song's own page) — in its place, a song with a YouTube link
+//           shows the YouTube button there instead of up near the year, and
+//           a song you've uploaded your own recording of shows a Play
+//           button. New: Add/Edit Song has a "Your recording" field — upload
+//           an audio file of yourself singing/playing the song, saved
+//           straight to your library, and the Play button appears on its
+//           Home tile the moment it's saved.
+export const APP_VERSION = "1.49.0";
 
 // One-line, user-facing summary of the CURRENT version, shown in the new
 // "What's new" update banner (components/UpdateToast.tsx). Keep this short
 // and in plain language — it's the thing you actually read, not the full
 // changelog comment above. Update this alongside APP_VERSION every time.
 export const LATEST_SUMMARY =
-  "Songs can now belong to multiple repositories, repositories can be renamed/deleted, Repositories moved under Settings, Favourite is now a Home filter, and the update banner now catches you up even after being away.";
+  "Fixed repository rename not saving, Repositories page now reads as part of Settings, song tiles swap the checkmark/shift badge for a YouTube or Play button, and you can now upload your own recording of a song right from Add/Edit Song.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

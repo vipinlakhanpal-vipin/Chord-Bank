@@ -21,6 +21,10 @@ export interface Song {
   year: number;
   language: "Hindi"; // repositories generalize this per-language
   youtubeId?: string; // just the video id, for the in-app embedded player
+  // Public URL of a recording YOU uploaded for this song (your own singing/
+  // playing, not the original) — stored in the Supabase 'recordings' bucket.
+  // One per song; a fresh upload overwrites the previous one.
+  recordingUrl?: string;
   // Each line is either a lyric line with inline chord tokens like
   // "[G]Tujhe [D]dekha to [Em]yeh jaana", a section label written as
   // "## Verse 1" / "## Chorus" / "## Bridge" etc., or "" for a blank spacer.

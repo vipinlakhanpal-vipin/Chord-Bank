@@ -16,6 +16,7 @@ interface SongRow {
   year: number;
   language: string;
   youtube_id: string | null;
+  recording_url: string | null;
   chart: string[];
   genres: string[] | null;
   tags: string[] | null;
@@ -36,6 +37,7 @@ function rowToSong(row: SongRow): Song {
     year: row.year,
     language: "Hindi",
     youtubeId: row.youtube_id ?? undefined,
+    recordingUrl: row.recording_url ?? undefined,
     chart: row.chart ?? [],
     genres: (row.genres ?? []).filter(isGenre),
     tags: row.tags ?? undefined,

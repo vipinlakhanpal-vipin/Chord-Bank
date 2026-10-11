@@ -110,6 +110,15 @@ export default function RepositoriesPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* This page lives under Settings (see app/settings/page.tsx) — this
+          link is what makes that visible instead of Repositories reading as
+          its own separate top-level section. */}
+      <Link
+        href="/settings"
+        className="self-start text-sm font-medium text-teal hover:underline flex items-center gap-1"
+      >
+        ← Settings
+      </Link>
       <div className="card p-4">
         <h1 className="text-xl font-display font-bold mb-1">Repositories</h1>
         <p className="text-sm text-ink/60 dark:text-cream/60">

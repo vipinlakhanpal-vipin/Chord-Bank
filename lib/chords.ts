@@ -74,6 +74,14 @@ export function findPlayableTranspositions(songChords: Chord[]): number[] {
   });
 }
 
+// The "I know this isn't one of my 6 chords, show me anyway" range — every
+// non-identity semitone shift, same as the +1..+11 (sometimes shown as
+// +1..+12, but +12 is the same pitch classes as +0/Original so it's left
+// out) stepper you'd find in a generic phone chord-transpose app. Used by
+// the song page's "Full range" toggle, which bypasses the YOUR_CHORDS
+// filter entirely — see app/songs/[id]/page.tsx.
+export const FULL_RANGE_SHIFTS = Array.from({ length: 11 }, (_, i) => i + 1);
+
 function dedupe(chords: Chord[]): Chord[] {
   const seen = new Set<string>();
   const out: Chord[] = [];

@@ -389,14 +389,29 @@
 //           an audio file of yourself singing/playing the song, saved
 //           straight to your library, and the Play button appears on its
 //           Home tile the moment it's saved.
-export const APP_VERSION = "1.49.0";
+//   1.50 — Transpose now has a range toggle: "Playable only" (the existing
+//           behavior — only shifts where every chord lands on your A, E,
+//           Em, G, C, D) alongside a new "Full range" option that steps
+//           through all +1 to +11 transpositions like any other phone chord
+//           app, regardless of whether they fit your 6 chords. Fixes a real
+//           gap: some songs only had one or two playable shifts (or none at
+//           all), with no way to just transpose normally like you're used
+//           to elsewhere. Also fixed the YouTube popup badly flickering when
+//           opened from a song tile — the video was being clipped by a
+//           rounded/overflow-hidden ancestor two levels up instead of its
+//           own wrapper, which is a known Chrome bug with hardware-
+//           accelerated video inside a drag-positioned (transform'd)
+//           rounded box; the clip now lives directly on the video's own
+//           wrapper with a forced compositing layer, which Chrome handles
+//           cleanly.
+export const APP_VERSION = "1.50.0";
 
 // One-line, user-facing summary of the CURRENT version, shown in the new
 // "What's new" update banner (components/UpdateToast.tsx). Keep this short
 // and in plain language — it's the thing you actually read, not the full
 // changelog comment above. Update this alongside APP_VERSION every time.
 export const LATEST_SUMMARY =
-  "Fixed repository rename not saving, Repositories page now reads as part of Settings, song tiles swap the checkmark/shift badge for a YouTube or Play button, and you can now upload your own recording of a song right from Add/Edit Song.";
+  "Transpose now has a Full range option (+1 to +11, like any other chord app) alongside the existing Playable-only mode, and fixed the YouTube popup flickering badly when opened from a song tile.";
 
 // Display format: vMAJOR.MINOR (minor zero-padded to 2 digits), with an optional
 // third "patch" digit appended only when it's non-zero, e.g. v2.04 or v2.04.1.

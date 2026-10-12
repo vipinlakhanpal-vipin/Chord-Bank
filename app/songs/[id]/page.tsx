@@ -14,6 +14,7 @@ import {
   extractChordsFromChart,
   findPlayableTranspositions,
   transposeLine,
+  FULL_RANGE_SHIFTS,
 } from "@/lib/chords";
 
 export default function SongPage() {
@@ -30,6 +31,13 @@ export default function SongPage() {
   // A, E, Em, G, C, D.
   const [mode, setMode] = useState<"original" | "transpose">("original");
   const [transposeShift, setTransposeShift] = useState<number | null>(null);
+  // "Playable" steps through only the shifts that keep every chord inside
+  // your A, E, Em, G, C, D (the original behavior). "Full range" is the
+  // ordinary +1..+11 transpose you'd get in a generic phone chord app —
+  // every shift, whether or not it lands on one of your 6. You asked for
+  // both, since "playable" alone could mean only +5/+7 show up for a song
+  // and nothing else, with no way to just transpose normally.
+  const [rangeMode, setRangeMode] = useState<"playable" | "full">("playable");
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -47,33 +55,43 @@ export default function SongPage() {
   );
   const bestShift = viableShifts[0] ?? null;
 
+  // Which list the +/- stepper walks through depends on the range toggle.
+  const activeShiftList = rangeMode === "playable" ? sortedViableShifts : FULL_RANGE_SHIFTS;
+  const defaultShiftFor = (range: "playable" | "full") =>
+    range === "playable" ? bestShift : FULL_RANGE_SHIFTS[0];
+
   // Reset to Original whenever you land on a (possibly different) song —
   // a transpose choice on one song should never carry over to the next.
   useEffect(() => {
     setMode("original");
     setTransposeShift(null);
+    setRangeMode("playable");
   }, [song?.id]);
 
   if (song === undefined) return null;
   if (song === null) return notFound();
 
-  const activeShift = mode === "original" ? 0 : transposeShift ?? bestShift ?? 0;
+  const activeShift = mode === "original" ? 0 : transposeShift ?? defaultShiftFor(rangeMode) ?? 0;
   const transposedChart = song.chart.map((line) => transposeLine(line, activeShift));
   const originalFits = viableShifts.includes(0);
 
-  const stepperIndex = sortedViableShifts.indexOf(transposeShift ?? bestShift ?? -1);
+  const stepperIndex = activeShiftList.indexOf(transposeShift ?? defaultShiftFor(rangeMode) ?? -1);
   const canStepDown = stepperIndex > 0;
-  const canStepUp = stepperIndex >= 0 && stepperIndex < sortedViableShifts.length - 1;
+  const canStepUp = stepperIndex >= 0 && stepperIndex < activeShiftList.length - 1;
 
   const openTranspose = () => {
     setMode("transpose");
-    if (transposeShift === null) setTransposeShift(bestShift);
+    if (transposeShift === null) setTransposeShift(defaultShiftFor(rangeMode));
+  };
+  const switchRange = (range: "playable" | "full") => {
+    setRangeMode(range);
+    setTransposeShift(defaultShiftFor(range));
   };
   const stepDown = () => {
-    if (canStepDown) setTransposeShift(sortedViableShifts[stepperIndex - 1]);
+    if (canStepDown) setTransposeShift(activeShiftList[stepperIndex - 1]);
   };
   const stepUp = () => {
-    if (canStepUp) setTransposeShift(sortedViableShifts[stepperIndex + 1]);
+    if (canStepUp) setTransposeShift(activeShiftList[stepperIndex + 1]);
   };
 
   // Capo math: playing an easy shape with a capo on fret N makes it SOUND N
@@ -162,8 +180,7 @@ export default function SongPage() {
           </button>
           <button
             onClick={openTranspose}
-            disabled={viableShifts.length === 0}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
               mode === "transpose"
                 ? "text-white bg-gradient-to-br from-violet-500 to-purple-700 shadow-md"
                 : "border border-black/10 dark:border-white/20 text-ink/70 dark:text-cream/70"
@@ -185,59 +202,94 @@ export default function SongPage() {
               </>
             )}
           </p>
-        ) : viableShifts.length === 0 ? (
-          <p className="text-sm text-ink/60 dark:text-cream/60">
-            No shift makes this song fit entirely inside A, E, Em, G, C, D — it needs at least one chord outside
-            your set no matter how it's shifted.
-          </p>
         ) : (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3">
+            {/* Playable only shows shifts where every chord lands on your 6 —
+                for a lot of songs that's just one or two shifts (sometimes
+                none). Full range is the ordinary +1..+11 transpose, same as
+                any other chord app, regardless of whether it's playable with
+                your 6 chords. */}
+            <div className="flex gap-2">
               <button
-                onClick={stepDown}
-                disabled={!canStepDown}
-                aria-label="Shift down"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold text-white bg-gradient-to-br from-violet-500 to-purple-700 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                onClick={() => switchRange("playable")}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  rangeMode === "playable"
+                    ? "text-white bg-gradient-to-br from-teal to-cyan-700 shadow-sm"
+                    : "border border-black/10 dark:border-white/20 text-ink/60 dark:text-cream/60"
+                }`}
               >
-                −
+                Playable only
               </button>
-              <div className="text-lg font-bold w-16 text-center">
-                {transposeShift === 0 ? "0" : `+${transposeShift}`}
-              </div>
               <button
-                onClick={stepUp}
-                disabled={!canStepUp}
-                aria-label="Shift up"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold text-white bg-gradient-to-br from-violet-500 to-purple-700 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                onClick={() => switchRange("full")}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  rangeMode === "full"
+                    ? "text-white bg-gradient-to-br from-teal to-cyan-700 shadow-sm"
+                    : "border border-black/10 dark:border-white/20 text-ink/60 dark:text-cream/60"
+                }`}
               >
-                +
+                Full range (+1 to +11)
               </button>
-              <p className="text-xs text-ink/50 dark:text-cream/50">
-                Step through every shift that keeps all chords inside your 6. Tap Original any time to get back.
-              </p>
             </div>
-            {transposeShift === 0 ? (
-              <p className="text-xs text-ink/50 dark:text-cream/50">
-                This is the same as Original — no capo needed, it already matches the recording's key.
+
+            {rangeMode === "playable" && viableShifts.length === 0 ? (
+              <p className="text-sm text-ink/60 dark:text-cream/60">
+                No shift makes this song fit entirely inside A, E, Em, G, C, D — it needs at least one chord
+                outside your set no matter how it&apos;s shifted. Tap <strong>Full range</strong> above to
+                transpose it anyway.
               </p>
             ) : (
-              currentCapoFret !== null && (
-                <p className="text-xs text-ink/50 dark:text-cream/50">
-                  {currentCapoFret >= 1 && currentCapoFret <= 4 ? (
-                    <>
-                      <strong>Capo on fret {currentCapoFret}</strong> + these shapes sounds exactly like the
-                      original recording's key.
-                    </>
-                  ) : (
-                    <>
-                      To match the original recording&apos;s key exactly with these shapes you&apos;d need a capo
-                      on fret {currentCapoFret} — outside the usual 1–4 range, so without a capo this will just
-                      sound {transposeShift} semitones higher than the recording, which is fine if it suits your
-                      voice.
-                    </>
-                  )}
-                </p>
-              )
+              <>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={stepDown}
+                    disabled={!canStepDown}
+                    aria-label="Shift down"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold text-white bg-gradient-to-br from-violet-500 to-purple-700 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                  >
+                    −
+                  </button>
+                  <div className="text-lg font-bold w-16 text-center">
+                    {transposeShift === 0 ? "0" : `+${transposeShift}`}
+                  </div>
+                  <button
+                    onClick={stepUp}
+                    disabled={!canStepUp}
+                    aria-label="Shift up"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold text-white bg-gradient-to-br from-violet-500 to-purple-700 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                  >
+                    +
+                  </button>
+                  <p className="text-xs text-ink/50 dark:text-cream/50">
+                    {rangeMode === "playable"
+                      ? "Step through every shift that keeps all chords inside your 6. Tap Original any time to get back."
+                      : "Step through all 11 transpositions, whether or not they fit your 6 chords. Tap Original any time to get back."}
+                  </p>
+                </div>
+                {transposeShift === 0 ? (
+                  <p className="text-xs text-ink/50 dark:text-cream/50">
+                    This is the same as Original — no capo needed, it already matches the recording's key.
+                  </p>
+                ) : (
+                  currentCapoFret !== null && (
+                    <p className="text-xs text-ink/50 dark:text-cream/50">
+                      {currentCapoFret >= 1 && currentCapoFret <= 4 ? (
+                        <>
+                          <strong>Capo on fret {currentCapoFret}</strong> + these shapes sounds exactly like the
+                          original recording's key.
+                        </>
+                      ) : (
+                        <>
+                          To match the original recording&apos;s key exactly with these shapes you&apos;d need a
+                          capo on fret {currentCapoFret} — outside the usual 1–4 range, so without a capo this
+                          will just sound {transposeShift} semitones higher than the recording, which is fine if
+                          it suits your voice.
+                        </>
+                      )}
+                    </p>
+                  )
+                )}
+              </>
             )}
           </div>
         )}

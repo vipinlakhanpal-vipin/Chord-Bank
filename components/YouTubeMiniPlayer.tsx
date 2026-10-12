@@ -186,7 +186,19 @@ export default function YouTubeMiniPlayer({
                 ✕
               </button>
             </div>
-            <div className="aspect-video w-full relative">
+            {/* overflow-hidden + translateZ(0) live HERE, directly around the
+                iframe, instead of relying on the popup div's rounding two
+                levels up. Chrome badly flickers a hardware-accelerated video
+                iframe when the element that clips it (rounded + overflow-
+                hidden) isn't its own compositing layer and sits inside a
+                transform-positioned ancestor (this popup is drag-positioned
+                via a CSS transform) — a very commonly reported Chrome bug.
+                Giving the video's own wrapper both the clip and a forced
+                layer fixes it without changing how anything looks. */}
+            <div
+              className="aspect-video w-full relative overflow-hidden"
+              style={{ transform: "translateZ(0)", WebkitBackfaceVisibility: "hidden" }}
+            >
               <div id={containerId} ref={playerContainerRef} className="w-full h-full" />
               {/* Swallows pointer events while dragging so the player never steals them */}
               {dragging && <div className="absolute inset-0" />}
